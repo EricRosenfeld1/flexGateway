@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace flexGateway.Common.Adapter
 {
-    public class AdapterFactory
+    public class AdapterFactory : IAdapterFactory
     {
         public Dictionary<Type, Type> RegisteredTypes { get; private set; } = new();
 
-        public void Register<T, J>(string name) where T : IAdapter where J : IAdapterConfiguration
+        public void Register<T, J>() where T : IAdapter where J : IAdapterConfiguration
         {
             var adapterType = typeof(T);
             var configType = typeof(J);

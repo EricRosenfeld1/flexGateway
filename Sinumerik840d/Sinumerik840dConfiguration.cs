@@ -1,11 +1,13 @@
 ﻿using flexGateway.Common.Adapter;
 
-namespace flexGateway.Common.Siemens
+namespace Sinumerik840d
 {
-    // expose this as shared
     public class Sinumerik840dConfiguration : IAdapterConfiguration
     {
+        public Sinumerik840dConfiguration(string jsonData)
+        {
 
+        }
     }
 
 }

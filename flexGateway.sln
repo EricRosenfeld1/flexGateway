@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "flexGateway.Common", "flexG
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "flexGateway.Server", "flexGateway\Server\flexGateway.Server.csproj", "{4D11A6BF-E26A-4DBF-8DCC-A20259DD605D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sinumerik840d", "Sinumerik840d\Sinumerik840d.csproj", "{516440BA-9045-4B5A-91DD-CF79B369B35E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{4D11A6BF-E26A-4DBF-8DCC-A20259DD605D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D11A6BF-E26A-4DBF-8DCC-A20259DD605D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D11A6BF-E26A-4DBF-8DCC-A20259DD605D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{516440BA-9045-4B5A-91DD-CF79B369B35E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{516440BA-9045-4B5A-91DD-CF79B369B35E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{516440BA-9045-4B5A-91DD-CF79B369B35E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{516440BA-9045-4B5A-91DD-CF79B369B35E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -41,11 +41,11 @@ namespace flexGateway.Server.Controllers
         }
 
         [HttpPost("post")]
-        public void Post(WeatherForecastContainer container)
+        public void Post([FromBody]string data)
         {
-            var o = JsonConvert.DeserializeObject<WeatherForecast>(container.Json);
-            var i = (WeatherForecast)o;
-            Debug.WriteLine(container.Json);
+            WeatherForecast j = JsonConvert.DeserializeObject<WeatherForecast>(data);
+
+            Debug.WriteLine(j.Summary);
         }
     }
 }

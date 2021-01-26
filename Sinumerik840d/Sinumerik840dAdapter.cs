@@ -6,11 +6,12 @@ using DotNetSiemensPLCToolBoxLibrary.Communication;
 using flexGateway.Common.Adapter;
 using flexGateway.Common.MachineNode;
 
-namespace flexGateway.Common.Siemens
+namespace Sinumerik840d
 {
     public class Sinumerik840dAdapter : IAdapter
     {
-        private PLCConnection connection { get; set; }       
+        private PLCConnection connection { get; set; }
+
         public List<INode> Nodes { get; private set; }
         public string Name { get; set; }
         public Sinumerik840dConfiguration Configuration { get; private set; }
@@ -23,15 +24,14 @@ namespace flexGateway.Common.Siemens
         public Task<List<INode>> GetDirtyNodesAsync()
         {
             List<INode> dirtyNodes = new();
-            foreach(var node in Nodes)
+            foreach (var node in Nodes)
             {
                 var sinumerikNode = (Sinumerik840dNode)node;
                 // TODO: we can pass a list for perfomance reasons, the library does optimization
                 var value = connection.ReadValue(sinumerikNode.ToNC_Var());
-                if(value != node.Value)
+                if (value != node.Value)
                     dirtyNodes.Add(node);
             }
-
             return Task.FromResult(dirtyNodes);
         }
 
@@ -39,8 +39,8 @@ namespace flexGateway.Common.Siemens
         {
             Dictionary<INode, INode> bindings = Nodes.ToDictionary(x => x.ParentNode, x => x);
 
-            foreach(var sourceChange in changes.Keys)
-            { 
+            foreach (var sourceChange in changes.Keys)
+            {
                 var sinumerikNode = (Sinumerik840dNode)bindings[sourceChange];
                 PLCNckTag tag = new PLCNckTag(sinumerikNode.ToNC_Var()) { Value = changes[sourceChange] };
 
@@ -48,7 +48,6 @@ namespace flexGateway.Common.Siemens
                 connection.WriteValue(tag);
                 bindings[sourceChange].Value = changes[sourceChange];
             }
-
             return Task.CompletedTask;
         }
 
@@ -86,5 +85,4 @@ namespace flexGateway.Common.Siemens
             return new NC_Var(node.Syntax, node.BereichEinheit, node.Spalte, node.Zeile, node.BausteinTyp, node.ZeilenAnzahl, node.Typ, node.Laenge);
         }
     }
-
 }

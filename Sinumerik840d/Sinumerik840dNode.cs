@@ -1,7 +1,7 @@
 ﻿using flexGateway.Common.MachineNode;
 using System;
 
-namespace flexGateway.Common.Siemens
+namespace Sinumerik840d
 {
     public class Sinumerik840dNode : INode
     {

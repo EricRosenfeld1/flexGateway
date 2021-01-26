@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNetProjects.DotNetSiemensPLCToolBoxLibrary" Version="4.0.390" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\flexGateway.Common\flexGateway.Common.csproj" />
+  </ItemGroup>
+
+</Project>

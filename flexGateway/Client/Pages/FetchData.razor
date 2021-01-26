@@ -43,11 +43,12 @@ else
     {
         forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("weatherforecast/get");
 
-        var json = JsonConvert.SerializeObject(forecasts[0]);
+        var f = new WeatherForecast();
+        f.Summary = "HELLO";
 
-        var container = new WeatherForecastContainer(json, nameof(WeatherForecast));
+        var j = JsonConvert.SerializeObject(f);
 
-        await Http.PostAsJsonAsync("weatherforecast/post", container);
+        await Http.PostAsJsonAsync("weatherforecast/post", j);
     }
 }
 
