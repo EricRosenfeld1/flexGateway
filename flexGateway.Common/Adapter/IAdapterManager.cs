@@ -10,8 +10,8 @@ namespace flexGateway.Common.Adapter
     {
         public IAdapter Source { get; }
         public List<IAdapter> Publishers { get; }
-        public void AddPublishers(IAdapter publisherAdapter);
-        public void RemovePublishers(IAdapter publisherAdapter);
-        public IAdapter GetByType(Type type);
+        public void AddPublisher(IAdapter publisherAdapter);
+        public void RemovePublisher(IAdapter publisherAdapter);
+        public T GetAdapter<T>();
     }
 }

@@ -9,27 +9,43 @@ namespace flexGateway.Common.Adapter
 {
     public class AdapterManager : IAdapterManager
     {
+        private Dictionary<Type, IAdapter> _registeredTypes = new();
+
         public IAdapter Source { get; private set; }
         public List<IAdapter> Publishers { get; private set; } = new();
 
-        public void AddPublishers(IAdapter publisherAdapter)
+        public void AddPublisher(IAdapter publisherAdapter)
         {
-            if (!Publishers.Exists(x => x.Name == publisherAdapter.Name))
+            if(_registeredTypes.TryAdd(publisherAdapter.GetType(), publisherAdapter))
+                if (!Publishers.Exists(x => x.Name == publisherAdapter.Name))
                 Publishers.Add(publisherAdapter);
         }
 
-        public void RemovePublishers(IAdapter publisherAdapter)
+        public void RemovePublisher(IAdapter publisherAdapter)
         {
+            _registeredTypes.Remove(publisherAdapter.GetType());
+
             if (Publishers.Contains(publisherAdapter))
                 Publishers.Remove(publisherAdapter);
         }
 
-        public IAdapter GetByType(Type type)
+        public void AddSource(IAdapter sourceAdapter)
         {
-            if(Source.GetType() == type)
-                return Source;
+            if(_registeredTypes.TryAdd(sourceAdapter.GetType(), sourceAdapter))
+                Source = sourceAdapter;
+        }
 
-            return null;
+        public void RemoveSource(IAdapter sourceAdapter)
+        {
+            _registeredTypes.Remove(sourceAdapter.GetType());
+
+            if(Source is not null)
+                Source = null;
+        }
+
+        public T GetAdapter<T>()
+        {
+            return (T)_registeredTypes[typeof(T)];
         }
 
     }

@@ -2,9 +2,9 @@
 
 namespace Sinumerik840d
 {
-    public class Sinumerik840dConfiguration : IAdapterConfiguration
+    public class Sinumerik840dConfiguration 
     {
-        public Sinumerik840dConfiguration(string jsonData)
+        public Sinumerik840dConfiguration()
         {
 
         }

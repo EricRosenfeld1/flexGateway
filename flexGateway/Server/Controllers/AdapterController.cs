@@ -8,28 +8,36 @@ using System.Threading.Tasks;
 
 namespace flexGateway.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("adapters/[controller]")]
     [ApiController]
     public class GenericAdapterController<T> : ControllerBase where T : IAdapter
     {
-        private IAdapterManager _adapterManager;
+        private IAdapterManager adapterManager;
 
         public GenericAdapterController(IAdapterManager adapterManager)
         {
-            _adapterManager = adapterManager;
+            adapterManager = this.adapterManager;
         }
 
         [HttpGet]
         private T Get()
         {
-            var adapter = _adapterManager.GetByType(typeof(T));
-            return (T)adapter;              
+            var adapter = adapterManager.GetAdapter<T>();
+            return adapter;              
         }
 
         [HttpPost]
         public IActionResult PostSource(T adapter)
-        {           
-            return Ok();
+        {
+            try
+            {
+                adapterManager.AddPublisher(adapter);
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                return Conflict();
+            }              
         }
 
         [HttpPost]

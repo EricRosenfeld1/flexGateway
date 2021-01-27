@@ -19,7 +19,6 @@ namespace flexGateway.Common.MachineNode
         }
    
         #region Synchronization 
-
         private async Task Update(CancellationToken token)
         {
             Stopwatch sw = new Stopwatch();
@@ -51,12 +50,10 @@ namespace flexGateway.Common.MachineNode
                     await Task.Delay(waitMs);
             }
         }
-
         protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.Run(async() =>
         {
             await Update(stoppingToken);
-        });
-        
+        });        
         #endregion
     }
 }

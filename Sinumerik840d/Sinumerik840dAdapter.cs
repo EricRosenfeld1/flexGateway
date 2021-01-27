@@ -14,11 +14,24 @@ namespace Sinumerik840d
 
         public List<INode> Nodes { get; private set; }
         public string Name { get; set; }
-        public Sinumerik840dConfiguration Configuration { get; private set; }
+        public PLCConnectionConfiguration Configuration { get; private set; }
 
-        public Sinumerik840dAdapter(Sinumerik840dConfiguration configuration)
+        public Sinumerik840dAdapter(string name, PLCConnectionConfiguration configuration)
         {
+            Name = name;
             Configuration = configuration;
+
+            connection = new PLCConnection(configuration);
+        }
+
+        public void Connect()
+        {
+            connection.Connect();
+        }
+
+        public void Disconnect()
+        {
+            connection.Disconnect();
         }
 
         public Task<List<INode>> GetDirtyNodesAsync()
