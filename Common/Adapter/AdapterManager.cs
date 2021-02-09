@@ -1,4 +1,4 @@
-﻿using flexGateway.Common.MachineNode;
+﻿using flexGateway.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,26 +21,31 @@ namespace flexGateway.Common.Adapter
                 Publishers.Add(publisherAdapter);
         }
 
-        public void RemovePublisher(IAdapter publisherAdapter)
-        {
-            _registeredTypes.Remove(publisherAdapter.GetType());
-
-            if (Publishers.Contains(publisherAdapter))
-                Publishers.Remove(publisherAdapter);
-        }
-
         public void AddSource(IAdapter sourceAdapter)
         {
             if(_registeredTypes.TryAdd(sourceAdapter.GetType(), sourceAdapter))
                 Source = sourceAdapter;
         }
 
-        public void RemoveSource(IAdapter sourceAdapter)
+        public void RemoveAdapter(Guid adapterGuid)
         {
-            _registeredTypes.Remove(sourceAdapter.GetType());
-
-            if(Source is not null)
+            Type type = null;
+            if(Source.Guid == adapterGuid)
+            {
+                type = Source.GetType();
                 Source = null;
+            }
+            else
+            {
+                var index = Publishers.FindIndex(x => x.Guid == adapterGuid);
+                if (index >= 0)
+                {
+                    type = Publishers[index].GetType();
+                    Publishers.RemoveAt(index);
+                }
+            }
+            if(type is not null)
+                _registeredTypes.Remove(type);
         }
 
         public T GetAdapter<T>()

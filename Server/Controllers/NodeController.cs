@@ -1,4 +1,4 @@
-﻿using flexGateway.Common.MachineNode;
+﻿using flexGateway.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using flexGateway.Interface;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,7 @@ namespace flexGateway.Common.Adapter
         public IAdapter Source { get; }
         public List<IAdapter> Publishers { get; }
         public void AddPublisher(IAdapter publisherAdapter);
-        public void RemovePublisher(IAdapter publisherAdapter);
+        public void RemoveAdapter(Guid adapterGuid);
         public T GetAdapter<T>();
     }
 }

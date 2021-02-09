@@ -1,4 +1,4 @@
-﻿using flexGateway.Common.MachineNode;
+﻿using flexGateway.Interface;
 using System;
 
 namespace Sinumerik840d

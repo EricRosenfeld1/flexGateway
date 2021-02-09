@@ -1,9 +1,8 @@
-﻿using flexGateway.Common.MachineNode;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace flexGateway.Common.Adapter
+namespace flexGateway.Interface
 {
     /// <summary>
     /// Provides connectivity to a PLC, CNC, industrial device or similar
@@ -11,7 +10,7 @@ namespace flexGateway.Common.Adapter
     public interface IAdapter
     {
         public string Name { get; set; }
-
+        public Guid Guid { get; }
         /// <summary>
         /// List of <see cref="INode"/> implemented by this <see cref="IAdapter"/>.
         /// Nodes should only be added/removed through <see cref="RemoveNode(Guid)"/> and <see cref="AddNode(INode)"/> due to duplicate checking.
@@ -32,7 +31,7 @@ namespace flexGateway.Common.Adapter
         public Task PushChangesAsync(Dictionary<INode, object> changes);
 
         /// <summary>
-        /// Add a <see cref="INode"/> to the <see cref="Nodes"/>
+        /// Add a <see cref="T"/> to the <see cref="Nodes"/>
         /// </summary>
         /// <param name="node"></param> 
         /// <exception cref="NotImplementedException">Throw if node is wrong type</exception>

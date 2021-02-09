@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotNetSiemensPLCToolBoxLibrary.Communication;
-using flexGateway.Common.Adapter;
-using flexGateway.Common.MachineNode;
+using flexGateway.Interface;
 
 namespace Sinumerik840d
 {
@@ -12,14 +11,15 @@ namespace Sinumerik840d
     {
         private PLCConnection connection { get; set; }
 
-        public List<INode> Nodes { get; private set; }
         public string Name { get; set; }
+        public List<INode> Nodes { get; private set; }
+        public Guid Guid { get; private set; }
         public PLCConnectionConfiguration Configuration { get; private set; }
 
-        public Sinumerik840dAdapter(string name, PLCConnectionConfiguration configuration)
+        public Sinumerik840dAdapter(string name, Guid guid, string configuration)
         {
             Name = name;
-            Configuration = configuration;
+            Guid = guid;
 
             connection = new PLCConnection(configuration);
         }
@@ -39,9 +39,9 @@ namespace Sinumerik840d
             List<INode> dirtyNodes = new();
             foreach (var node in Nodes)
             {
-                var sinumerikNode = (Sinumerik840dNode)node;
                 // TODO: we can pass a list for perfomance reasons, the library does optimization
-                var value = connection.ReadValue(sinumerikNode.ToNC_Var());
+                var sNode = (Sinumerik840dNode)node;
+                var value = connection.ReadValue(sNode.ToNC_Var());
                 if (value != node.Value)
                     dirtyNodes.Add(node);
             }
@@ -50,11 +50,11 @@ namespace Sinumerik840d
 
         public Task PushChangesAsync(Dictionary<INode, object> changes)
         {
-            Dictionary<INode, INode> bindings = Nodes.ToDictionary(x => x.ParentNode, x => x);
+            Dictionary<INode, Sinumerik840dNode> bindings = Nodes.ToDictionary(x => x.ParentNode, x => (Sinumerik840dNode)x);
 
             foreach (var sourceChange in changes.Keys)
             {
-                var sinumerikNode = (Sinumerik840dNode)bindings[sourceChange];
+                var sinumerikNode = bindings[sourceChange];
                 PLCNckTag tag = new PLCNckTag(sinumerikNode.ToNC_Var()) { Value = changes[sourceChange] };
 
                 // TODO: we can pass a list for perfomance reasons, the library does optimization
@@ -66,13 +66,10 @@ namespace Sinumerik840d
 
         public void AddNode(INode node)
         {
-            if (node is Sinumerik840dNode sinumerikNode)
                 if (!Nodes.Any(x => x.ParentNode == node.ParentNode || x.Guid == x.Guid))
-                    Nodes.Add(sinumerikNode);
+                    Nodes.Add(node);
                 else
                     throw new Exception("Node already exists");
-            else
-                throw new NotSupportedException("Invalid node type");
         }
 
         public void RemoveNode(Guid nodeGuid)

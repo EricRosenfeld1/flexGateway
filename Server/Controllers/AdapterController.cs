@@ -1,10 +1,12 @@
 ﻿using flexGateway.Common.Adapter;
+using flexGateway.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using flexGateway.Common;
 
 namespace flexGateway.Server.Controllers
 {
@@ -17,6 +19,11 @@ namespace flexGateway.Server.Controllers
         public GenericAdapterController(IAdapterManager adapterManager)
         {
             adapterManager = this.adapterManager;
+        }
+
+        public GenericAdapterController()
+        {
+
         }
 
         [HttpGet]
@@ -46,4 +53,13 @@ namespace flexGateway.Server.Controllers
             return Ok();
         }
     }
+
+    public class Testing
+    {
+        public Testing()
+        {
+            
+        }
+    }
+
 }

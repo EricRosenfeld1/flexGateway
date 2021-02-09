@@ -1,4 +1,4 @@
-﻿using flexGateway.Common.Adapter;
+﻿using flexGateway.Interface;
 
 namespace Sinumerik840d
 {
