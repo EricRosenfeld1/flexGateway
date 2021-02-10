@@ -9,10 +9,11 @@ namespace flexGateway.Common.AdapterNode
 {
     public class NodeFactory : INodeFactory
     {
-        public HashSet<Type> RegisteredTypes { get; private set; }
+        public HashSet<Type> RegisteredTypes { get; private set; } = new();
         public void Register(Type type)
         {
-            RegisteredTypes.Add(type);
+            if(typeof(INode).IsAssignableFrom(type))
+                RegisteredTypes.Add(type);
         }
         public T Create<T>()
         {

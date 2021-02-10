@@ -15,10 +15,10 @@ namespace flexGateway.Server
     {
         public static IHost LoadPlugins(this IHost host)
         {
-            var am = host.Services.GetService<IAdapterFactory>();
-            var nm = host.Services.GetService<INodeFactory>();
+            var af = host.Services.GetService<IAdapterFactory>();
+            var nf = host.Services.GetService<INodeFactory>();
 
-            var pluginManager = new PluginManager(am, nm);
+            var pluginManager = new PluginManager(af, nf);
             pluginManager.LoadPlugins();
 
             return host;

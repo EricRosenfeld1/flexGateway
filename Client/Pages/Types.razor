@@ -1,0 +1,37 @@
+﻿@page "/types"
+@using flexGateway.Shared
+@inject HttpClient Http
+
+<h1>Types</h1>
+
+
+@if (nodeTypes == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <h3>Registered Adapter Types</h3>
+    @foreach (TypeModel type in adapterTypes)
+    {
+        <p>- @type.Name</p>
+    }
+
+    <h3>Registered Node Types</h3>
+    @foreach(TypeModel type in nodeTypes)
+    {
+        <p>- @type.Name</p>
+    }
+}
+
+
+@code {
+    TypeModel[] adapterTypes;
+    TypeModel[] nodeTypes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        adapterTypes = await Http.GetFromJsonAsync<TypeModel[]>("type/getadaptertypes");
+        nodeTypes = await Http.GetFromJsonAsync<TypeModel[]>("type/getnodetypes");
+    }
+}

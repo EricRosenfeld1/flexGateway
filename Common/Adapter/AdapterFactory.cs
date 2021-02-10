@@ -13,7 +13,7 @@ namespace flexGateway.Common.Adapter
 
         public void Register(Type type)
         {
-            if(type.IsAssignableFrom(typeof(IAdapter)))
+            if(typeof(IAdapter).IsAssignableFrom(type))
                 RegisteredTypes.Add(type);
         }
 

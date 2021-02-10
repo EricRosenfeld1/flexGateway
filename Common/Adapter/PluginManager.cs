@@ -25,17 +25,18 @@ namespace flexGateway.Common.Adapter
             string pluginPath = AppContext.BaseDirectory + "plugins\\";
             foreach (var dir in Directory.GetDirectories(pluginPath))
             {
-                string name = Path.GetDirectoryName(dir) + ".dll";
+                string name = Path.GetFileName(dir) + ".dll";
                 Assembly plugin = LoadPlugin(Path.Combine(dir, name));
 
-                foreach (Type type in plugin.GetTypes())
+                Type[] types = plugin.GetTypes();
+                for(int i=0;i<=types.Length -1; i++)
                 {
-                    if (typeof(IAdapter).IsAssignableFrom(type))
+                    if (typeof(IAdapter).IsAssignableFrom(types[i]))
                     {                      
-                        _adapterManager.Register(type);
-                    } else if (typeof(INode).IsAssignableFrom(type))
+                        _adapterManager.Register(types[i]);
+                    } else if (typeof(INode).IsAssignableFrom(types[i]))
                     {
-                        _nodeFactory.Register(type);
+                        _nodeFactory.Register(types[i]);
                     }
                 }
             }
@@ -43,6 +44,8 @@ namespace flexGateway.Common.Adapter
 
         private static Assembly LoadPlugin(string path)
         {
+            var s = PluginLoadContext.All;
+
             PluginLoadContext loadContext = new PluginLoadContext(path);
             return loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(path)));
         }
