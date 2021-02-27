@@ -5,13 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using flexGateway.Shared;
 
 namespace flexGateway.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
-    public class GenericNodeController<T> : ControllerBase where T : INode
+    public class NodeController: ControllerBase 
     {
-
+        [HttpPost("post")]
+        public IActionResult Post(NodeModel nodeModel)
+        {
+            return Ok();
+        }
     }
 }

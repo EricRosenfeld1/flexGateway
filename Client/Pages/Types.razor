@@ -31,7 +31,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        adapterTypes = await Http.GetFromJsonAsync<TypeModel[]>("type/getadaptertypes");
-        nodeTypes = await Http.GetFromJsonAsync<TypeModel[]>("type/getnodetypes");
+        adapterTypes = await Http.GetFromJsonAsync<TypeModel[]>("types/getadaptertypes");
+        nodeTypes = await Http.GetFromJsonAsync<TypeModel[]>("types/getnodetypes");
     }
 }

@@ -9,39 +9,44 @@ namespace Sinumerik840d
 {
     public class Sinumerik840dAdapter : IAdapter
     {
-        private PLCConnection connection { get; set; }
+        private PLCConnection _connection { get; set; }
+        private PLCConnectionConfiguration _plcConfig { get; set; }
+        private HashSet<Sinumerik840dNode> _nodes { get; set; } = new();
 
         public string Name { get; set; }
-        public List<INode> Nodes { get; private set; }
         public Guid Guid { get; private set; }
-        public PLCConnectionConfiguration Configuration { get; private set; }
+        public string Configuration { get; private set; }
 
         public Sinumerik840dAdapter(string name, Guid guid, string configuration)
         {
             Name = name;
             Guid = guid;
+            Configuration = configuration;
 
-            connection = new PLCConnection(configuration);
+            _plcConfig = SinumerikConfigurationParser.ParseConfig(configuration);
+            _connection = new PLCConnection(_plcConfig);
         }
 
-        public void Connect()
+        public Task ConnectAsync()
         {
-            connection.Connect();
+            _connection.Connect();
+            return Task.CompletedTask;
         }
 
-        public void Disconnect()
+        public Task DisconnectAsync()
         {
-            connection.Disconnect();
+            _connection.Disconnect();
+            return Task.CompletedTask;
         }
 
         public Task<List<INode>> GetDirtyNodesAsync()
         {
             List<INode> dirtyNodes = new();
-            foreach (var node in Nodes)
+            foreach (var node in _nodes)
             {
                 // TODO: we can pass a list for perfomance reasons, the library does optimization
-                var sNode = (Sinumerik840dNode)node;
-                var value = connection.ReadValue(sNode.ToNC_Var());
+                var sNode = node;
+                var value = _connection.ReadValue(sNode.ToNC_Var());
                 if (value != node.Value)
                     dirtyNodes.Add(node);
             }
@@ -50,7 +55,7 @@ namespace Sinumerik840d
 
         public Task PushChangesAsync(Dictionary<INode, object> changes)
         {
-            Dictionary<INode, Sinumerik840dNode> bindings = Nodes.ToDictionary(x => x.ParentNode, x => (Sinumerik840dNode)x);
+            Dictionary<INode, Sinumerik840dNode> bindings = _nodes.ToDictionary(x => x.ParentNode, x => x);
 
             foreach (var sourceChange in changes.Keys)
             {
@@ -58,33 +63,32 @@ namespace Sinumerik840d
                 PLCNckTag tag = new PLCNckTag(sinumerikNode.ToNC_Var()) { Value = changes[sourceChange] };
 
                 // TODO: we can pass a list for perfomance reasons, the library does optimization
-                connection.WriteValue(tag);
+                _connection.WriteValue(tag);
                 bindings[sourceChange].Value = changes[sourceChange];
             }
             return Task.CompletedTask;
         }
 
-        public void AddNode(INode node)
+        public void AddNode(INode node) 
         {
-                if (!Nodes.Any(x => x.ParentNode == node.ParentNode || x.Guid == x.Guid))
-                    Nodes.Add(node);
-                else
-                    throw new Exception("Node already exists");
+
         }
+    }
 
-        public void RemoveNode(Guid nodeGuid)
+    static class SinumerikConfigurationParser
+    {
+        public static PLCConnectionConfiguration ParseConfig(string json)
         {
-            var node = Nodes.Find(x => x.Guid == nodeGuid);
-            if (node is not null)
-                Nodes.Remove(node);
+            var config = new PLCConnectionConfiguration("SinumerikConnection");      
+            return config;
         }
+    }
 
-        public void BindNode(Guid nodeGuid, INode sourceNode)
+    static class SinumerikNodeParser
+    {
+        public static Sinumerik840dNode ParseNode(string json)
         {
-            var node = Nodes.First(x => x.Guid == sourceNode.Guid);
-
-            if (node is not null)
-                node.ParentNode = sourceNode;
+            return new Sinumerik840dNode(new Guid(), "") ;
         }
     }
 

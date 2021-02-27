@@ -7,58 +7,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using flexGateway.Common;
+using flexGateway.Shared;
 
 namespace flexGateway.Server.Controllers
 {
-    [Route("adapters/[controller]")]
+    [Route("[controller]")]
     [ApiController]
-    public class GenericAdapterController<T> : ControllerBase where T : IAdapter
+    public class AdapterController : ControllerBase
     {
-        private IAdapterManager adapterManager;
+        private IAdapterManager _adapterManager;
+        private IAdapterFactory _adapterFactory;
 
-        public GenericAdapterController(IAdapterManager adapterManager)
+        public AdapterController(IAdapterManager adapterManager, IAdapterFactory adapterFactory)
         {
-            adapterManager = this.adapterManager;
+            _adapterManager = adapterManager;
+            _adapterFactory = adapterFactory;
         }
 
-        public GenericAdapterController()
-        {
-
-        }
-
-        [HttpGet]
-        private T Get()
-        {
-            var adapter = adapterManager.GetAdapter<T>();
-            return adapter;              
-        }
-
-        [HttpPost]
-        public IActionResult PostSource(T adapter)
+        [HttpPost("post")]
+        public IActionResult Post(AdapterModel adapterModel)
         {
             try
             {
-                adapterManager.AddPublisher(adapter);
-                return Ok();
+                var type = _adapterFactory.RegisteredTypes.FirstOrDefault(x => x.Name == adapterModel.TypeModel.Name);
+                if (type is not null)
+                {
+                    IAdapter adapter = _adapterFactory.Create(type, adapterModel.Name, new Guid(), "");
+                    _adapterManager.AddPublisher(adapter);
+                    return Ok();
+                }
+                else
+                    throw new Exception("Type is not registered");
             }
             catch(Exception ex)
             {
-                return Conflict();
+                return Conflict(ex.Message);
             }              
-        }
-
-        [HttpPost]
-        public IActionResult PostPublisher(T adapter)
-        {
-            return Ok();
-        }
-    }
-
-    public class Testing
-    {
-        public Testing()
-        {
-            
         }
     }
 

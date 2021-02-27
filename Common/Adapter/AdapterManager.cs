@@ -9,21 +9,21 @@ namespace flexGateway.Common.Adapter
 {
     public class AdapterManager : IAdapterManager
     {
-        private Dictionary<Type, IAdapter> _registeredTypes = new();
+        private Dictionary<Type, IAdapter> _adapters = new();
 
         public IAdapter Source { get; private set; }
         public List<IAdapter> Publishers { get; private set; } = new();
 
         public void AddPublisher(IAdapter publisherAdapter)
         {
-            if(_registeredTypes.TryAdd(publisherAdapter.GetType(), publisherAdapter))
+            if(_adapters.TryAdd(publisherAdapter.GetType(), publisherAdapter))
                 if (!Publishers.Exists(x => x.Name == publisherAdapter.Name))
                 Publishers.Add(publisherAdapter);
         }
 
         public void AddSource(IAdapter sourceAdapter)
         {
-            if(_registeredTypes.TryAdd(sourceAdapter.GetType(), sourceAdapter))
+            if(_adapters.TryAdd(sourceAdapter.GetType(), sourceAdapter))
                 Source = sourceAdapter;
         }
 
@@ -45,12 +45,12 @@ namespace flexGateway.Common.Adapter
                 }
             }
             if(type is not null)
-                _registeredTypes.Remove(type);
+                _adapters.Remove(type);
         }
 
         public T GetAdapter<T>()
         {
-            return (T)_registeredTypes[typeof(T)];
+            return (T)_adapters[typeof(T)];
         }
 
     }

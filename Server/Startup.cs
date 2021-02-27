@@ -29,6 +29,7 @@ namespace flexGateway.Server
 
             services.AddSingleton<IAdapterFactory, AdapterFactory>();
             services.AddSingleton<INodeFactory, NodeFactory>();
+            services.AddSingleton<IAdapterManager, AdapterManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

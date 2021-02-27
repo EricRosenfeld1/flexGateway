@@ -13,13 +13,14 @@ namespace flexGateway.Common.Adapter
 {
     public class PluginManager
     {
-        private IAdapterFactory _adapterManager;
+        private IAdapterFactory _adapterFactory;
         private INodeFactory _nodeFactory;
         public PluginManager(IAdapterFactory adapterFactory, INodeFactory nodeFactory)
         {
-            _adapterManager = adapterFactory;
+            _adapterFactory = adapterFactory;
             _nodeFactory = nodeFactory;
         }
+
         public void LoadPlugins()
         {
             string pluginPath = AppContext.BaseDirectory + "plugins\\";
@@ -29,16 +30,24 @@ namespace flexGateway.Common.Adapter
                 Assembly plugin = LoadPlugin(Path.Combine(dir, name));
 
                 Type[] types = plugin.GetTypes();
+                Type adapterType = null;
+                Type nodeType = null;
                 for(int i=0;i<=types.Length -1; i++)
                 {
                     if (typeof(IAdapter).IsAssignableFrom(types[i]))
                     {                      
-                        _adapterManager.Register(types[i]);
+                        adapterType = types[i];
                     } else if (typeof(INode).IsAssignableFrom(types[i]))
                     {
-                        _nodeFactory.Register(types[i]);
+                        nodeType = types[i];
                     }
                 }
+
+                if (adapterType == null || nodeType == null)
+                    throw new Exception("Plugin error");
+
+                _adapterFactory.Register(adapterType);
+                _nodeFactory.Register(adapterType, nodeType);
             }
         }
 

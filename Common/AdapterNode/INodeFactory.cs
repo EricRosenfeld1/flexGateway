@@ -6,9 +6,7 @@ namespace flexGateway.Common.AdapterNode
 {
     public interface INodeFactory
     {
-        HashSet<Type> RegisteredTypes { get; }
-
-        T Create<T>();
-        void Register(Type type);
+        Dictionary<Type, Type> RegisteredNodeTypes { get; }
+        void Register(Type adapterType, Type nodeType);
     }
 }

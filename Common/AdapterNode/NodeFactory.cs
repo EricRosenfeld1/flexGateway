@@ -9,19 +9,21 @@ namespace flexGateway.Common.AdapterNode
 {
     public class NodeFactory : INodeFactory
     {
-        public HashSet<Type> RegisteredTypes { get; private set; } = new();
-        public void Register(Type type)
+        public Dictionary<Type, Type> RegisteredNodeTypes { get; private set; } = new();
+        public void Register(Type adapterType, Type nodeType)
         {
-            if(typeof(INode).IsAssignableFrom(type))
-                RegisteredTypes.Add(type);
+            if (typeof(IAdapter).IsAssignableFrom(adapterType))
+                if (typeof(INode).IsAssignableFrom(nodeType))
+                    RegisteredNodeTypes.Add(adapterType, nodeType);
         }
-        public T Create<T>()
-        {
-            if (RegisteredTypes.Contains(typeof(T)))
-                return Activator.CreateInstance<T>();
 
-            else
+        public INode Create(Type nodeType)
+        {
+            if (!RegisteredNodeTypes.ContainsValue(nodeType))
                 throw new Exception("Type not registered");
+
+            var instance = Activator.CreateInstance(nodeType);
+            return (INode)instance;
         }
     }
 }
