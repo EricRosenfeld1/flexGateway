@@ -37,4 +37,4 @@ The gateway will be controlled through a Blazor WebAssembly app.
 
 ## Project Information
 
-If you are interested in IoT, Indsutry 4.0 or general industriual machiniery feel free to contribute to my project and help me with the implementation. Please note that the project is not even close for production useage.
+If you are interested in IoT, Indsutry 4.0 or general industriual machiniery feel free to contribute to my project and help me with the implementation. Please note that the project is not even close for production usage.
