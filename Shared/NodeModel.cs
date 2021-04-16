@@ -6,17 +6,17 @@ namespace flexGateway.Shared
 {
     public class NodeModel
     {
-        public NodeModel(string name, TypeModel typeModel, string config)
+        public NodeModel(string name, string type, string config)
         {
             Name = name;
             JsonConfiguration = config;
-            TypeModel = typeModel;
+            TypeAsString = type;
         }
         public NodeModel()
         {
         }
 
-        public TypeModel TypeModel { get; set; }
+        public string TypeAsString { get; set; }
         public string Name { get; set; }
         public string JsonConfiguration { get; set; }
     }

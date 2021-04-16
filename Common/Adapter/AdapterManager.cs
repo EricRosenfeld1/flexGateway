@@ -44,6 +44,7 @@ namespace flexGateway.Common.Adapter
                     Publishers.RemoveAt(index);
                 }
             }
+
             if(type is not null)
                 _adapters.Remove(type);
         }

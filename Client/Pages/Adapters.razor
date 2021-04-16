@@ -1,38 +1,29 @@
-@page "/adapter"
+@page "/adapters"
 @using flexGateway.Shared
 @inject HttpClient Http
 
 <h1>Adapters</h1>
 
-@if (registeredAdapters != null)
+@if (types != null)
 {
-    <select name="adapters" @onchange="@OnValueChanged">
-        @foreach (var model in registeredAdapters)
-        {
-<option value="@model">@model.Name</option>}
-    </select>
+<select @bind="selected">
+    @foreach(var item in types)
+    {
+        <option value="@item.TypeAsString">@item.Name</option>
+    }
+</select>
 }
-
-   <button @onclick="OnButtonClick">Add Adapter</button>
-
+<p>Selected: @selected</p>
 
 
-@code {     private TypeModel[] registeredAdapters;
-    private TypeModel selectedAdapter;
+@code {       
+    private AdapterModel[] types;
+    private string selected;
 
     protected override async Task OnInitializedAsync()
     {
-        registeredAdapters = await Http.GetFromJsonAsync<TypeModel[]>("types/getadaptertypes");
+        types = await Http.GetFromJsonAsync<AdapterModel[]>("Adapter");
     }
 
-    private async Task OnButtonClick()
-    {
-        await Http.PostAsJsonAsync<AdapterModel>("adapter/post", new AdapterModel("Hello World", registeredAdapters[0], ""));
-    }
-
-    private void OnValueChanged(ChangeEventArgs e)
-    {
-        selectedAdapter = (TypeModel)e.Value;
-    }
     }
 

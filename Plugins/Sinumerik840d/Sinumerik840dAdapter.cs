@@ -45,8 +45,7 @@ namespace Sinumerik840d
             foreach (var node in _nodes)
             {
                 // TODO: we can pass a list for perfomance reasons, the library does optimization
-                var sNode = node;
-                var value = _connection.ReadValue(sNode.ToNC_Var());
+                var value = _connection.ReadValue(node.ToNC_Var());
                 if (value != node.Value)
                     dirtyNodes.Add(node);
             }
@@ -69,9 +68,10 @@ namespace Sinumerik840d
             return Task.CompletedTask;
         }
 
-        public void AddNode(INode node) 
+        public void AddNode(string jsonConfig) 
         {
-
+            var node = SinumerikNodeParser.ParseNode(jsonConfig);
+            _nodes.Add(node);
         }
     }
 

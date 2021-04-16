@@ -8,20 +8,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using flexGateway.Common;
 using flexGateway.Shared;
+using System.Diagnostics;
 
 namespace flexGateway.Server.Controllers
 {
-    [Route("[controller]")]
     [ApiController]
+    [Route("[controller]")]
     public class AdapterController : ControllerBase
     {
         private IAdapterManager _adapterManager;
         private IAdapterFactory _adapterFactory;
 
-        public AdapterController(IAdapterManager adapterManager, IAdapterFactory adapterFactory)
+        public AdapterController(IAdapterFactory adapterFactory, IAdapterManager adapterManager)
         {
-            _adapterManager = adapterManager;
             _adapterFactory = adapterFactory;
+            _adapterManager = adapterManager;
         }
 
         [HttpPost("post")]
@@ -29,7 +30,7 @@ namespace flexGateway.Server.Controllers
         {
             try
             {
-                var type = _adapterFactory.RegisteredTypes.FirstOrDefault(x => x.Name == adapterModel.TypeModel.Name);
+                var type = _adapterFactory.RegisteredTypes.FirstOrDefault(x => x.FullName == adapterModel.TypeAsString);
                 if (type is not null)
                 {
                     IAdapter adapter = _adapterFactory.Create(type, adapterModel.Name, new Guid(), "");
@@ -39,11 +40,24 @@ namespace flexGateway.Server.Controllers
                 else
                     throw new Exception("Type is not registered");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Conflict(ex.Message);
-            }              
+            }
         }
+
+        [HttpGet]
+        public IEnumerable<AdapterModel> Get()
+        {
+            var r = new List<AdapterModel>();
+            foreach (var item in _adapterFactory.RegisteredTypes)
+                r.Add(new AdapterModel(item.Name, item.FullName, string.Empty));
+
+            return r.ToArray();
+        }
+
+
+
     }
 
 }

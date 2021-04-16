@@ -28,7 +28,6 @@ namespace flexGateway.Interface
         public Task ConnectAsync();
         public Task DisconnectAsync();
 
-        public void AddNode(INode node);
-
+        public void AddNode(string jsonConfig);
     }
 }
