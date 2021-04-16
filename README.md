@@ -2,7 +2,7 @@
 
 **THIS SOFTWARE IS NOT (ready) FOR PRODUCTION USE**
 
-A Raspberry-Pi based industrial gateway. It is designed to enable IoT (MQTT, OFS, ...) ability to industrial machines.
+A Raspberry-Pi based industrial gateway. It is designed to enable IoT (MQTT, OPC, ...) ability to industrial machines.
 
 The adapters provide and handle the machine/hardware/software specific implementation which allow you to read or write values to your device. 
 Due to the 1:n connection like manner, you can configure the communication within the gateway to your needs.
