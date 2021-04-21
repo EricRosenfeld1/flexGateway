@@ -1,14 +1,9 @@
-﻿using flexGateway.Common.Adapter;
-using flexGateway.Common.MachineNode;
-using Microsoft.AspNetCore.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using flexGateway.Common.Plugins;
 using Microsoft.Extensions.DependencyInjection;
 using flexGateway.Common.AdapterNode;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using flexGateway.Common.Adapter;
 
 namespace flexGateway.Server
 {

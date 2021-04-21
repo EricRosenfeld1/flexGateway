@@ -1,4 +1,7 @@
-﻿using flexGateway.Interface;
+﻿using flexGateway.Common.MachineNode;
+using flexGateway.Interface;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,26 +12,42 @@ namespace flexGateway.Common.Adapter
 {
     public class AdapterManager : IAdapterManager
     {
-        private Dictionary<Type, IAdapter> _adapters = new();
+        private Dictionary<Type, IAdapter> adapters = new();
+        private ILogger<AdapterManager> logger;
 
+        /// <summary>
+        /// Source adapter; single source of truth
+        /// </summary>
         public IAdapter Source { get; private set; }
+
+        /// <summary>
+        /// List of adapters which will be synchronized to the <see cref="Source"/>
+        /// </summary>
         public List<IAdapter> Publishers { get; private set; } = new();
+        public AdapterManager(ILogger<AdapterManager> logger)
+        {
+            this.logger = logger;
+        }
 
         public void AddPublisher(IAdapter publisherAdapter)
         {
-            if(_adapters.TryAdd(publisherAdapter.GetType(), publisherAdapter))
+            if(adapters.TryAdd(publisherAdapter.GetType(), publisherAdapter))
                 if (!Publishers.Exists(x => x.Name == publisherAdapter.Name))
                 Publishers.Add(publisherAdapter);
-        }
+
+       }
 
         public void AddSource(IAdapter sourceAdapter)
         {
-            if(_adapters.TryAdd(sourceAdapter.GetType(), sourceAdapter))
+  
+            if (adapters.TryAdd(sourceAdapter.GetType(), sourceAdapter))
                 Source = sourceAdapter;
+
         }
 
         public void RemoveAdapter(Guid adapterGuid)
         {
+ 
             Type type = null;
             if(Source.Guid == adapterGuid)
             {
@@ -46,13 +65,13 @@ namespace flexGateway.Common.Adapter
             }
 
             if(type is not null)
-                _adapters.Remove(type);
+                adapters.Remove(type);
+
         }
 
         public T GetAdapter<T>()
         {
-            return (T)_adapters[typeof(T)];
+            return (T)adapters[typeof(T)];
         }
-
     }
 }

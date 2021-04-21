@@ -1,5 +1,6 @@
 using flexGateway.Common.Adapter;
 using flexGateway.Common.AdapterNode;
+using flexGateway.Common.MachineNode;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -30,8 +31,9 @@ namespace flexGateway.Server
             services.AddSingleton<IAdapterFactory, AdapterFactory>();
             services.AddSingleton<INodeFactory, NodeFactory>();
             services.AddSingleton<IAdapterManager, AdapterManager>();
+            services.AddSingleton<NodeSynchronizationService>();
 
-            
+            services.AddHostedService<NodeSynchronizationService>(provider => provider.GetService<NodeSynchronizationService>());            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

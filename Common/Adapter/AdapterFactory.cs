@@ -2,34 +2,32 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using flexGateway.Interface;
 
 namespace flexGateway.Common.Adapter
 {
     public class AdapterFactory : IAdapterFactory
     {
-        public HashSet<Type> RegisteredTypes { get; private set; } = new();
-        public void Register(Type type)
+        public Dictionary<Type, Type> RegisteredTypes { get; private set; } = new();
+        public void Register(Type adapterType, Type configType)
         {
-            if(typeof(IAdapter).IsAssignableFrom(type))
-                RegisteredTypes.Add(type);
+            if(typeof(IAdapter).IsAssignableFrom(adapterType))
+                if(typeof(IAdapterConfiguration).IsAssignableFrom(configType))
+                    RegisteredTypes.Add(adapterType, configType);
         }
-
-        public IAdapter Create(Type type, string name, Guid guid, string configuration)
+        public IAdapter Create(Type adapterType, string name, Guid guid, string configAsJson)
         {
-            if (!RegisteredTypes.Contains(type))
+            if (!RegisteredTypes.Keys.Contains(adapterType))
                 throw new Exception("Type not registered");
 
-            object[] paras = { name, guid, configuration };
-            var instance = Activator.CreateInstance(type, paras);
+            object[] paras = { name, guid, configAsJson };
+            var instance = Activator.CreateInstance(adapterType, paras);
             return (IAdapter)instance;
         }
 
-        public T Create<T>(string name, Guid guid, string config) where T : IAdapter
+        public T Create<T>(string name, Guid guid, string configAsJson) where T : IAdapter
         {
-            return (T)Create(typeof(T), name, guid, config);
+            return (T)Create(typeof(T), name, guid, configAsJson);
         }
     }
 }

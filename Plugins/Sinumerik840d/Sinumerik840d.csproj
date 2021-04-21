@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="DotNetProjects.DotNetSiemensPLCToolBoxLibrary" Version="4.0.390" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>

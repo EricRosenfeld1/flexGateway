@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using flexGateway.Common;
 using flexGateway.Shared;
 using System.Diagnostics;
+using Newtonsoft.Json;
+using flexGateway.Common.MachineNode;
+using Microsoft.Extensions.Hosting;
 
 namespace flexGateway.Server.Controllers
 {
@@ -16,25 +19,26 @@ namespace flexGateway.Server.Controllers
     [Route("[controller]")]
     public class AdapterController : ControllerBase
     {
-        private IAdapterManager _adapterManager;
-        private IAdapterFactory _adapterFactory;
-
-        public AdapterController(IAdapterFactory adapterFactory, IAdapterManager adapterManager)
+        private IAdapterManager adapterManager;
+        private IAdapterFactory adapterFactory;
+        private NodeSynchronizationService nodeSynchroniztaionService;
+        public AdapterController(IAdapterFactory adapterFactory, IAdapterManager adapterManager, NodeSynchronizationService service)
         {
-            _adapterFactory = adapterFactory;
-            _adapterManager = adapterManager;
+            this.adapterFactory = adapterFactory;
+            this.adapterManager = adapterManager;
+            nodeSynchroniztaionService = service;
         }
 
-        [HttpPost("post")]
+        [HttpPost]
         public IActionResult Post(AdapterModel adapterModel)
         {
             try
             {
-                var type = _adapterFactory.RegisteredTypes.FirstOrDefault(x => x.FullName == adapterModel.TypeAsString);
+                var type = adapterFactory.RegisteredTypes.Keys.Where(x => x.FullName == adapterModel.FullName).First();
                 if (type is not null)
                 {
-                    IAdapter adapter = _adapterFactory.Create(type, adapterModel.Name, new Guid(), "");
-                    _adapterManager.AddPublisher(adapter);
+                    IAdapter adapter = adapterFactory.Create(type, adapterModel.Name, new Guid(), adapterModel.JsonConfiguration);
+                    adapterManager.AddPublisher(adapter);
                     return Ok();
                 }
                 else
@@ -50,13 +54,26 @@ namespace flexGateway.Server.Controllers
         public IEnumerable<AdapterModel> Get()
         {
             var r = new List<AdapterModel>();
-            foreach (var item in _adapterFactory.RegisteredTypes)
-                r.Add(new AdapterModel(item.Name, item.FullName, string.Empty));
-
+            foreach (var item in adapterFactory.RegisteredTypes)
+            {
+                r.Add(new AdapterModel(item.Key.Name, item.Key.FullName, JsonConvert.SerializeObject(Activator.CreateInstance(item.Value), Formatting.Indented)));
+            }
             return r.ToArray();
         }
 
+        [HttpGet("start")]
+        public IActionResult GetStart()
+        {
+            nodeSynchroniztaionService.StartAsync(new System.Threading.CancellationToken());
+            return Ok();
+        }
 
+        [HttpGet("stop")]
+        public IActionResult GetStop()
+        {
+            nodeSynchroniztaionService.StopAsync(new System.Threading.CancellationToken());
+            return Ok();
+        }
 
     }
 

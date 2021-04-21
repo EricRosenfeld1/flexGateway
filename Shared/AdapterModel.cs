@@ -9,15 +9,27 @@ namespace flexGateway.Shared
         public AdapterModel(string name, string type, string config)
         {
             Name = name;
-            TypeAsString = type;
+            FullName = type;
             JsonConfiguration = config;
         }
         public AdapterModel()
         {
 
         }
-        public string TypeAsString { get; set; }
+
+        /// <summary>
+        /// Representative type name; <see cref="Type.FullName"/>
+        /// </summary>
+        public string FullName { get; set; }
+
+        /// <summary>
+        /// JSON formatted configuration object
+        /// </summary>
         public string JsonConfiguration { get; set; }
+
+        /// <summary>
+        /// Display name
+        /// </summary>
         public string Name { get; set; }
     }
 }

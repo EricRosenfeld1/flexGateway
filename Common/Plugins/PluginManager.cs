@@ -1,25 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using flexGateway.Common.Adapter;
 using flexGateway.Common.AdapterNode;
 using flexGateway.Interface;
 using Microsoft.Extensions.Logging;
 
-namespace flexGateway.Common.Adapter
+namespace flexGateway.Common.Plugins
 {
     public class PluginManager
     {
-        private IAdapterFactory _adapterFactory;
-        private INodeFactory _nodeFactory;
+        private IAdapterFactory adapterFactory;
+        private INodeFactory nodeFactory;
         public PluginManager(IAdapterFactory adapterFactory, INodeFactory nodeFactory)
         {
-            _adapterFactory = adapterFactory;
-            _nodeFactory = nodeFactory;
+            this.adapterFactory = adapterFactory;
+            this.nodeFactory = nodeFactory;
         }
 
         public void LoadPlugins(ILogger<PluginManager> logger)
@@ -35,9 +31,9 @@ namespace flexGateway.Common.Adapter
                     Type[] types = plugin.GetTypes();
                     Type adapterType = null;
                     Type nodeType = null;
+                    Type configType = null;
 
-                    for (int i = 0; i <= types.Length - 1; i++)
-                    {
+                    for (int i = 0; i <= types.Length - 1; i++)                   
                         if (typeof(IAdapter).IsAssignableFrom(types[i]))
                         {
                             adapterType = types[i];
@@ -45,14 +41,16 @@ namespace flexGateway.Common.Adapter
                         else if (typeof(INode).IsAssignableFrom(types[i]))
                         {
                             nodeType = types[i];
+                        } else if (typeof(IAdapterConfiguration).IsAssignableFrom(types[i]))
+                        {
+                            configType = types[i];
                         }
-                    }
 
-                    if (adapterType == null || nodeType == null)
+                    if (adapterType == null || nodeType == null || configType == null)
                         throw new Exception("Plugin error");
 
-                    _adapterFactory.Register(adapterType);
-                    _nodeFactory.Register(adapterType, nodeType);
+                    adapterFactory.Register(adapterType, configType);
+                    nodeFactory.Register(adapterType, nodeType);
 
                     logger.LogInformation($"Plugin: {adapterType.Name} loaded");
 

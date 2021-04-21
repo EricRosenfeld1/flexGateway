@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DotNetSiemensPLCToolBoxLibrary.Communication;
 using flexGateway.Interface;
+using Newtonsoft.Json;
 
 namespace Sinumerik840d
 {
@@ -17,14 +18,25 @@ namespace Sinumerik840d
         public Guid Guid { get; private set; }
         public string Configuration { get; private set; }
 
-        public Sinumerik840dAdapter(string name, Guid guid, string configuration)
+        public Sinumerik840dAdapter(string name, Guid guid, string configAsJson)
         {
             Name = name;
             Guid = guid;
-            Configuration = configuration;
 
-            _plcConfig = SinumerikConfigurationParser.ParseConfig(configuration);
-            _connection = new PLCConnection(_plcConfig);
+            var config = JsonConvert.DeserializeObject<Siumerik840dConfiguration>(configAsJson);
+            var plcConfig = new PLCConnectionConfiguration()
+            {
+                ConnectionName = name,
+                ConnectionType = LibNodaveConnectionTypes.ISO_over_TCP,
+                CpuIP = config.IpAdress,
+                Port = 22,
+                CpuRack = config.Rack,
+                CpuSlot = config.Slot,
+                Timeout = TimeSpan.FromSeconds(5)
+            };
+
+            _connection = new PLCConnection(plcConfig);
+            Configuration = configAsJson;
         }
 
         public Task ConnectAsync()
@@ -70,25 +82,14 @@ namespace Sinumerik840d
 
         public void AddNode(string jsonConfig) 
         {
-            var node = SinumerikNodeParser.ParseNode(jsonConfig);
-            _nodes.Add(node);
-        }
-    }
+            try
+            {
+                var node = JsonConvert.DeserializeObject<Sinumerik840dNode>(jsonConfig);
+                _nodes.Add(node);
+            } catch (Exception ex)
+            {
 
-    static class SinumerikConfigurationParser
-    {
-        public static PLCConnectionConfiguration ParseConfig(string json)
-        {
-            var config = new PLCConnectionConfiguration("SinumerikConnection");      
-            return config;
-        }
-    }
-
-    static class SinumerikNodeParser
-    {
-        public static Sinumerik840dNode ParseNode(string json)
-        {
-            return new Sinumerik840dNode(new Guid(), "") ;
+            }
         }
     }
 

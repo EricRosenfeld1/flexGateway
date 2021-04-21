@@ -8,11 +8,11 @@ namespace MockingAdapter
 {
     public class MockAdapter : IAdapter
     {
-        public string Name { get; set; }
-
-        public Guid Guid { get; set; }
-
         private HashSet<MockNode> _nodes { get; set; }
+
+        public string Name { get; set; }
+        public Guid Guid { get; set; }
+        public string Configuration { get; set; }
 
         public void AddNode(string jsonConfig)
         {
@@ -33,7 +33,6 @@ namespace MockingAdapter
         {
             throw new NotImplementedException();
         }
-
         public Task PushChangesAsync(Dictionary<INode, object> changes)
         {
             throw new NotImplementedException();

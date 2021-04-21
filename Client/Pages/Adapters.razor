@@ -6,24 +6,38 @@
 
 @if (types != null)
 {
-<select @bind="selected">
-    @foreach(var item in types)
+<select id="select-box" @onchange="@((ChangeEventArgs e) => OnUpdate(e))">
+    @foreach (var item in types)
     {
-        <option value="@item.TypeAsString">@item.Name</option>
+        <option value="@item.FullName">@item.Name</option>
     }
 </select>
 }
-<p>Selected: @selected</p>
 
+@if(model != null)
+{
+<textarea @bind="model.JsonConfiguration"/>
 
-@code {       
+<button @onclick="OnClick">Post</button>
+}
+
+@code {
     private AdapterModel[] types;
-    private string selected;
+    private AdapterModel model;
 
     protected override async Task OnInitializedAsync()
     {
         types = await Http.GetFromJsonAsync<AdapterModel[]>("Adapter");
     }
 
+    private void OnUpdate(ChangeEventArgs e)
+    {
+        model = types.Where(x => x.FullName == e.Value.ToString()).FirstOrDefault();
     }
+
+    private async Task OnClick()
+    {
+        await Http.PostAsJsonAsync<AdapterModel>("adapter", model);
+    }
+}
 

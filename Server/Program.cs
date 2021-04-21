@@ -1,6 +1,8 @@
 ﻿using flexGateway.Common.Adapter;
+using flexGateway.Common.MachineNode;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
