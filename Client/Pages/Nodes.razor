@@ -1,0 +1,41 @@
+@page "/nodes"
+@using flexGateway.Shared
+@inject HttpClient Http
+
+<h1>Nodes</h1>
+
+@if (types != null)
+{
+<select id="select-box">
+    @foreach (var item in types)
+    {
+        <option value="@item.TypeFullName">@item.Name</option>
+    }
+</select>
+
+<button @onclick="@GetPublisher">GET</button>
+<button @onclick="@PostAdapter">POST</button>
+}
+
+@code {
+        private NodeConfigurationModel[] types;
+
+        protected override async Task OnInitializedAsync()
+        {
+            types = await Http.GetFromJsonAsync<NodeConfigurationModel[]>("node/getalltypes");
+        }
+
+        public async Task PostAdapter()
+        {
+            NodeConfigurationModel model = new NodeConfigurationModel("Hello World", types[0].TypeFullName, types[0].JsonConfiguration, types[0].AdapterType);
+            await Http.PostAsJsonAsync<NodeConfigurationModel>("node/postNode", model);
+    }
+
+    public async Task GetPublisher()
+    {
+        var adapters = await Http.GetFromJsonAsync<NodeModel[]>("node/getNode");
+        Console.WriteLine(adapters[0].Guid);
+    }
+
+}
+

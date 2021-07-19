@@ -22,6 +22,7 @@ namespace flexGateway.Server.Controllers
         private IAdapterManager adapterManager;
         private IAdapterFactory adapterFactory;
         private NodeSynchronizationService nodeSynchroniztaionService;
+
         public AdapterController(IAdapterFactory adapterFactory, IAdapterManager adapterManager, NodeSynchronizationService service)
         {
             this.adapterFactory = adapterFactory;
@@ -29,15 +30,18 @@ namespace flexGateway.Server.Controllers
             nodeSynchroniztaionService = service;
         }
 
-        [HttpPost]
-        public IActionResult Post(AdapterModel adapterModel)
+        [HttpPost("postPublisher")]
+        public IActionResult Post(AdapterConfigurationModel adapterModel)
         {
             try
             {
-                var type = adapterFactory.RegisteredTypes.Keys.Where(x => x.FullName == adapterModel.FullName).First();
+                if (nodeSynchroniztaionService.IsRunning)
+                    nodeSynchroniztaionService.StopAsync(new System.Threading.CancellationToken());
+
+                var type = adapterFactory.RegisteredTypes.Keys.Where(x => x.FullName == adapterModel.TypeFullName).First();
                 if (type is not null)
                 {
-                    IAdapter adapter = adapterFactory.Create(type, adapterModel.Name, new Guid(), adapterModel.JsonConfiguration);
+                    IAdapter adapter = adapterFactory.Create(type, adapterModel.Name, Guid.NewGuid(), adapterModel.JsonConfiguration);
                     adapterManager.AddPublisher(adapter);
                     return Ok();
                 }
@@ -48,31 +52,35 @@ namespace flexGateway.Server.Controllers
             {
                 return Conflict(ex.Message);
             }
+            finally
+            {
+                if (!nodeSynchroniztaionService.IsRunning)
+                    nodeSynchroniztaionService.StartAsync(new System.Threading.CancellationToken());
+            }
         }
 
-        [HttpGet]
-        public IEnumerable<AdapterModel> Get()
+        [HttpGet("getAllTypes")]
+        public IEnumerable<AdapterConfigurationModel> GetAllTypes()
         {
-            var r = new List<AdapterModel>();
-            foreach (var item in adapterFactory.RegisteredTypes)
-            {
-                r.Add(new AdapterModel(item.Key.Name, item.Key.FullName, JsonConvert.SerializeObject(Activator.CreateInstance(item.Value), Formatting.Indented)));
-            }
+            var r = new List<AdapterConfigurationModel>();
+            foreach (var item in adapterFactory.RegisteredTypes.Keys)
+                r.Add(new AdapterConfigurationModel(
+                    item.Name, 
+                    item.FullName, 
+                    JsonConvert.SerializeObject(Activator.CreateInstance(adapterFactory.RegisteredTypes[item]), 
+                    Formatting.Indented)));
+
             return r.ToArray();
         }
 
-        [HttpGet("start")]
-        public IActionResult GetStart()
+        [HttpGet("getPublishers")]
+        public IEnumerable<AdapterModel> GetPublishers()
         {
-            nodeSynchroniztaionService.StartAsync(new System.Threading.CancellationToken());
-            return Ok();
-        }
+            var r = new List<AdapterModel>();
+            foreach (var item in adapterManager.Publishers)
+                r.Add(new AdapterModel(item.Name, item.Guid, item.GetType().FullName));
 
-        [HttpGet("stop")]
-        public IActionResult GetStop()
-        {
-            nodeSynchroniztaionService.StopAsync(new System.Threading.CancellationToken());
-            return Ok();
+            return r.ToArray();
         }
 
     }

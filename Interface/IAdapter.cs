@@ -15,7 +15,7 @@ namespace flexGateway.Interface
         /// <summary>
         /// JSON configuration string which contains all data to build the adapter
         /// </summary>
-        public string Configuration { get; }
+        public IAdapterConfiguration Configuration { get; }
 
         /// <summary>
         /// Retreive a list of <see cref="INode"/> where the value has changed.
@@ -34,6 +34,6 @@ namespace flexGateway.Interface
 
         public Task DisconnectAsync();
 
-        public void AddNode(string jsonConfig);
+        public void AddNode(INode node);
     }
 }

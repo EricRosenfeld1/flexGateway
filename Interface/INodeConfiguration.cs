@@ -4,7 +4,7 @@ using System.Text;
 
 namespace flexGateway.Interface
 {
-    public interface INodeConfiguration
+    public interface IAdapterConfiguration
     {
 
     }

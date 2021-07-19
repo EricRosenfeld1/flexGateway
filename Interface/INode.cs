@@ -13,6 +13,7 @@ namespace flexGateway.Interface
         public INode ParentNode { get; set; }
         public object Value { get; set; }
         public NodeDataType NodeType { get; set; }
+        public string Configuration { get; }
     }
 
     public enum NodeDataType

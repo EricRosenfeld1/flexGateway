@@ -32,6 +32,7 @@ namespace flexGateway.Common.Plugins
                     Type adapterType = null;
                     Type nodeType = null;
                     Type configType = null;
+                    Type nodeConfigType = null;
 
                     for (int i = 0; i <= types.Length - 1; i++)                   
                         if (typeof(IAdapter).IsAssignableFrom(types[i]))
@@ -44,13 +45,16 @@ namespace flexGateway.Common.Plugins
                         } else if (typeof(IAdapterConfiguration).IsAssignableFrom(types[i]))
                         {
                             configType = types[i];
+                        }else if (typeof(INodeConfiguration).IsAssignableFrom(types[i]))
+                        {
+                            nodeConfigType = types[i];
                         }
 
-                    if (adapterType == null || nodeType == null || configType == null)
+                    if (adapterType == null || nodeType == null || configType == null || nodeConfigType == null)
                         throw new Exception("Plugin error");
 
                     adapterFactory.Register(adapterType, configType);
-                    nodeFactory.Register(adapterType, nodeType);
+                    nodeFactory.Register(adapterType, nodeType, nodeConfigType);
 
                     logger.LogInformation($"Plugin: {adapterType.Name} loaded");
 

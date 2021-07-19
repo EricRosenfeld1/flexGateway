@@ -6,30 +6,16 @@ namespace flexGateway.Shared
 {
     public class AdapterModel
     {
-        public AdapterModel(string name, string type, string config)
+        public string Name { get; set; }
+        public string TypeFullName { get; set; }
+        public Guid Guid { get; private set; }
+        public List<NodeModel> Nodes { get; set; }
+        public AdapterModel(string name, Guid guid, string typeFullName)
         {
             Name = name;
-            FullName = type;
-            JsonConfiguration = config;
-        }
-        public AdapterModel()
-        {
-
+            Guid = guid;
+            TypeFullName = typeFullName;
         }
 
-        /// <summary>
-        /// Representative type name; <see cref="Type.FullName"/>
-        /// </summary>
-        public string FullName { get; set; }
-
-        /// <summary>
-        /// JSON formatted configuration object
-        /// </summary>
-        public string JsonConfiguration { get; set; }
-
-        /// <summary>
-        /// Display name
-        /// </summary>
-        public string Name { get; set; }
     }
 }

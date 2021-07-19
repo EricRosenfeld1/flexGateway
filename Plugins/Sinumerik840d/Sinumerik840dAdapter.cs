@@ -16,14 +16,14 @@ namespace Sinumerik840d
 
         public string Name { get; set; }
         public Guid Guid { get; private set; }
-        public string Configuration { get; private set; }
+        public IAdapterConfiguration Configuration { get; private set; }
 
-        public Sinumerik840dAdapter(string name, Guid guid, string configAsJson)
+        public Sinumerik840dAdapter(string name, Guid guid, Siumerik840dConfiguration config)
         {
             Name = name;
             Guid = guid;
+            Configuration = config;
 
-            var config = JsonConvert.DeserializeObject<Siumerik840dConfiguration>(configAsJson);
             var plcConfig = new PLCConnectionConfiguration()
             {
                 ConnectionName = name,
@@ -36,7 +36,6 @@ namespace Sinumerik840d
             };
 
             _connection = new PLCConnection(plcConfig);
-            Configuration = configAsJson;
         }
 
         public Task ConnectAsync()
@@ -57,7 +56,7 @@ namespace Sinumerik840d
             foreach (var node in _nodes)
             {
                 // TODO: we can pass a list for perfomance reasons, the library does optimization
-                var value = _connection.ReadValue(node.ToNC_Var());
+                var value = _connection.ReadValue(node.NCVar);
                 if (value != node.Value)
                     dirtyNodes.Add(node);
             }
@@ -71,7 +70,7 @@ namespace Sinumerik840d
             foreach (var sourceChange in changes.Keys)
             {
                 var sinumerikNode = bindings[sourceChange];
-                PLCNckTag tag = new PLCNckTag(sinumerikNode.ToNC_Var()) { Value = changes[sourceChange] };
+                PLCNckTag tag = new PLCNckTag(sinumerikNode.NCVar) { Value = changes[sourceChange] };
 
                 // TODO: we can pass a list for perfomance reasons, the library does optimization
                 _connection.WriteValue(tag);
@@ -80,24 +79,10 @@ namespace Sinumerik840d
             return Task.CompletedTask;
         }
 
-        public void AddNode(string jsonConfig) 
+        public void AddNode(INode node) 
         {
-            try
-            {
-                var node = JsonConvert.DeserializeObject<Sinumerik840dNode>(jsonConfig);
-                _nodes.Add(node);
-            } catch (Exception ex)
-            {
-
-            }
+            _nodes.Add(node as Sinumerik840dNode);
         }
     }
 
-    static class SinumerikNodeExtension
-    {
-        public static NC_Var ToNC_Var(this Sinumerik840dNode node)
-        {
-            return new NC_Var(node.Syntax, node.BereichEinheit, node.Spalte, node.Zeile, node.BausteinTyp, node.ZeilenAnzahl, node.Typ, node.Laenge);
-        }
-    }
 }

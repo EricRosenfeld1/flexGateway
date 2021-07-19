@@ -6,38 +6,36 @@
 
 @if (types != null)
 {
-<select id="select-box" @onchange="@((ChangeEventArgs e) => OnUpdate(e))">
+<select id="select-box">
     @foreach (var item in types)
     {
-        <option value="@item.FullName">@item.Name</option>
+        <option value="@item.TypeFullName">@item.Name</option>
     }
 </select>
-}
 
-@if(model != null)
-{
-<textarea @bind="model.JsonConfiguration"/>
-
-<button @onclick="OnClick">Post</button>
+<button @onclick="@GetPublisher">GET</button>
+<button @onclick="@PostAdapter">POST</button>
 }
 
 @code {
-    private AdapterModel[] types;
-    private AdapterModel model;
+    private AdapterConfigurationModel[] types;
 
     protected override async Task OnInitializedAsync()
     {
-        types = await Http.GetFromJsonAsync<AdapterModel[]>("Adapter");
+        types = await Http.GetFromJsonAsync<AdapterConfigurationModel[]>("adapter/getalltypes");
     }
 
-    private void OnUpdate(ChangeEventArgs e)
+    public async Task PostAdapter()
     {
-        model = types.Where(x => x.FullName == e.Value.ToString()).FirstOrDefault();
+        AdapterConfigurationModel model = new AdapterConfigurationModel("Hello World", types[0].TypeFullName, types[0].JsonConfiguration);
+        await Http.PostAsJsonAsync<AdapterConfigurationModel>("adapter/postPublisher", model);
+     }
+
+    public async Task GetPublisher()
+    {
+        var adapters = await Http.GetFromJsonAsync<AdapterModel[]>("adapter/getPublishers");
+        Console.WriteLine(adapters[0].Guid);
     }
 
-    private async Task OnClick()
-    {
-        await Http.PostAsJsonAsync<AdapterModel>("adapter", model);
-    }
 }
 

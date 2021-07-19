@@ -7,6 +7,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using flexGateway.Shared;
 using System.Diagnostics;
+using flexGateway.Common.Adapter;
+using flexGateway.Common.AdapterNode;
+using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
+using flexGateway.Common.MachineNode;
 
 namespace flexGateway.Server.Controllers
 {
@@ -14,18 +19,48 @@ namespace flexGateway.Server.Controllers
     [Route("[controller]")]
     public class NodeController: ControllerBase 
     {
-        public NodeController()
+        private IAdapterManager adapterManager;
+        private INodeFactory nodeFactory;
+        private NodeSynchronizationService nodeSynchroniztaionService;
+
+        public NodeController(IAdapterManager adapterManager, INodeFactory nodeFactory, NodeSynchronizationService service)
         {
-            Debug.WriteLine("");
+            this.adapterManager = adapterManager;
+            this.nodeFactory = nodeFactory;
+            nodeSynchroniztaionService = service;
         }
 
-        [HttpGet("get")]
-        public IEnumerable<NodeModel> Get()
+        [HttpPost("addNode")]
+        public void AddNode(Guid adapterGuid, NodeConfigurationModel nodeModel)  
         {
-            List<NodeModel> list = new List<NodeModel>();
-            list.Add(new NodeModel());
+            var adapter = adapterManager.Publishers.Where(x => x.Guid == adapterGuid).First();
+            if(adapter != null)
+            {
+                var type = nodeFactory.RegisteredTypes.Keys.Where(x => x.FullName == nodeModel.TypeFullName).First();
+                var node = nodeFactory.Create(type, nodeModel.Name, Guid.NewGuid(), nodeModel.JsonConfiguration);
+                adapter.AddNode(node);
+            }
+        }
 
-            return list.ToArray();
+        [HttpGet("getAllTypes")]
+        public IEnumerable<NodeConfigurationModel> GetAllTypes()
+        {
+            var r = new List<NodeConfigurationModel>();
+
+            foreach(var item in nodeFactory.RegisteredTypes.Keys)
+            {
+                var adaterType = item.FullName;
+                var nodeType = nodeFactory.RegisteredTypes[item];
+                var configType = nodeFactory.ConfigurationTypes[nodeType];
+
+                r.Add(new NodeConfigurationModel(
+                    nodeType.Name,
+                    nodeType.FullName,
+                    JsonConvert.SerializeObject(Activator.CreateInstance(configType), Formatting.Indented),
+                    adaterType));
+            }
+
+            return r;
         }
     }
 }

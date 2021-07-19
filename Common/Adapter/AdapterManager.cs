@@ -24,6 +24,7 @@ namespace flexGateway.Common.Adapter
         /// List of adapters which will be synchronized to the <see cref="Source"/>
         /// </summary>
         public List<IAdapter> Publishers { get; private set; } = new();
+
         public AdapterManager(ILogger<AdapterManager> logger)
         {
             this.logger = logger;

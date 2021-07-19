@@ -1,30 +1,27 @@
-﻿using flexGateway.Interface;
+﻿using DotNetSiemensPLCToolBoxLibrary.Communication;
+using flexGateway.Interface;
+using Newtonsoft.Json;
 using System;
 
 namespace Sinumerik840d
 {
     public class Sinumerik840dNode : INode
     {
-        public Sinumerik840dNode(Guid guid, string name) { }
+        public NC_Var NCVar;
 
-        #region nc var definition
-        public int Syntax { get; internal set; }
-        public int BereichEinheit { get; internal set; }
-        public int Spalte { get; internal set; }
-        public int Zeile { get; internal set; }
-        public int BausteinTyp { get; internal set; }
-        public int ZeilenAnzahl { get; internal set; }
-        public int Typ { get; internal set; }
-        public int Laenge { get; internal set; }
-        #endregion
+        public string Configuration { get; private set; }
+        public Guid Guid { get; private set; }
+        public string NodeName { get; set; }
+        public object Value { get; set; }
+        public INode ParentNode { get; set; }
+        public NodeDataType NodeType { get; set; }
+        public Sinumerik840dNode(string name, Guid guid, string configAsJson) 
+        {
+            NodeName = name;
+            Guid = guid;
 
-        #region interface properties
-        public Guid Guid => throw new NotImplementedException();
-        public string NodeName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public object Value { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public INode ParentNode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public NodeDataType NodeType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        #endregion
+            Configuration = configAsJson;
+            NCVar = JsonConvert.DeserializeObject<NC_Var>(configAsJson);
+        }
     }
-
 }
