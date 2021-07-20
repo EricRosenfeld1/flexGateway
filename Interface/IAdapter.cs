@@ -10,6 +10,7 @@ namespace flexGateway.Interface
     public interface IAdapter
     {
         public string Name { get; set; }
+        public List<INode> Nodes { get; }
         public Guid Guid { get; }
 
         /// <summary>

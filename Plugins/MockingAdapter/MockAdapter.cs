@@ -13,6 +13,7 @@ namespace MockingAdapter
         public string Name { get; set; }
         public Guid Guid { get; set; }
         public IAdapterConfiguration Configuration { get; set; }
+        public List<INode> Nodes { get; set; }
         public MockAdapter(string name, Guid guid, MockConfiguration config)
         {
             Name = name;

@@ -31,15 +31,35 @@ namespace flexGateway.Server.Controllers
         }
 
         [HttpPost("addNode")]
-        public void AddNode(Guid adapterGuid, NodeConfigurationModel nodeModel)  
-        {
-            var adapter = adapterManager.Publishers.Where(x => x.Guid == adapterGuid).First();
-            if(adapter != null)
+        public IActionResult AddNode(Guid adapterGuid, NodeConfigurationModel nodeModel)  
+        {          
+            try
             {
-                var type = nodeFactory.RegisteredTypes.Keys.Where(x => x.FullName == nodeModel.TypeFullName).First();
-                var node = nodeFactory.Create(type, nodeModel.Name, Guid.NewGuid(), nodeModel.JsonConfiguration);
-                adapter.AddNode(node);
+                if (nodeSynchroniztaionService.IsRunning)
+                    nodeSynchroniztaionService.StopAsync(new System.Threading.CancellationToken());
+
+                var adapter = adapterManager.Publishers.Where(x => x.Guid == adapterGuid).First();
+
+                if (adapter == null)
+                    if (adapterManager.Source.Guid == adapterGuid)
+                        adapter = adapterManager.Source;
+
+                if (adapter != null)
+                {
+                    var type = nodeFactory.RegisteredTypes.Keys.Where(x => x.FullName == nodeModel.TypeFullName).First();
+                    var node = nodeFactory.Create(type, nodeModel.Name, Guid.NewGuid(), nodeModel.JsonConfiguration);
+                    adapter.AddNode(node);
+                }
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
+            finally
+            {
+                if (!nodeSynchroniztaionService.IsRunning)
+                    nodeSynchroniztaionService.StartAsync(new System.Threading.CancellationToken());
+            }
+            return Ok();        
         }
 
         [HttpGet("getAllTypes")]

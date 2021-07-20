@@ -17,6 +17,10 @@ namespace Sinumerik840d
         public string Name { get; set; }
         public Guid Guid { get; private set; }
         public IAdapterConfiguration Configuration { get; private set; }
+        public List<INode> Nodes
+        { 
+            get => (List<INode>)(INode)_nodes;            
+        }
 
         public Sinumerik840dAdapter(string name, Guid guid, Siumerik840dConfiguration config)
         {

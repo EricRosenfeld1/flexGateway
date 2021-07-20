@@ -4,21 +4,20 @@
 
 <h1>Adapters</h1>
 
+<h2>Source</h2>
+
+
+<h2>Publishers</h2>
+
+<h1>Available Types</h1>
 @if (types != null)
 {
-<select id="select-box">
-    @foreach (var item in types)
-    {
-        <option value="@item.TypeFullName">@item.Name</option>
-    }
-</select>
-
-<button @onclick="@GetPublisher">GET</button>
-<button @onclick="@PostAdapter">POST</button>
+<RadzenListBox @bind-Value="selected" Data="@types" TextProperty="Name" ValueProperty="TypeFullName"/>
 }
 
 @code {
     private AdapterConfigurationModel[] types;
+    private string selected;
 
     protected override async Task OnInitializedAsync()
     {

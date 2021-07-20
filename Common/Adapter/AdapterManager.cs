@@ -35,7 +35,6 @@ namespace flexGateway.Common.Adapter
             if(adapters.TryAdd(publisherAdapter.GetType(), publisherAdapter))
                 if (!Publishers.Exists(x => x.Name == publisherAdapter.Name))
                 Publishers.Add(publisherAdapter);
-
        }
 
         public void AddSource(IAdapter sourceAdapter)
@@ -43,7 +42,6 @@ namespace flexGateway.Common.Adapter
   
             if (adapters.TryAdd(sourceAdapter.GetType(), sourceAdapter))
                 Source = sourceAdapter;
-
         }
 
         public void RemoveAdapter(Guid adapterGuid)
@@ -67,7 +65,6 @@ namespace flexGateway.Common.Adapter
 
             if(type is not null)
                 adapters.Remove(type);
-
         }
 
         public T GetAdapter<T>()

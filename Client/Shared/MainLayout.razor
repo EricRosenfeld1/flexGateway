@@ -1,15 +1,43 @@
-﻿@inherits LayoutComponentBase
+﻿@using Radzen.Blazor
+@inherits LayoutComponentBase
 
-<div class="sidebar">
-    <NavMenu />
+<RadzenHeader>
+    <ChildContent>
+        <div class="row justify-content-start align-items-center">
+            <div class="col-6 d-flex align-items-center">
+                <RadzenSidebarToggle Click="@(args => { sidebarExpanded = !sidebarExpanded; bodyExpanded = !bodyExpanded; })">
+                </RadzenSidebarToggle>
+                <RadzenLabel Text="flexGateway - Dashboard">
+                </RadzenLabel>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenHeader>
+
+<div style="width:100%;">
+    <RadzenBody @ref="@body0" @bind-Expanded="@bodyExpanded">
+        <ChildContent>
+            <RadzenContentContainer Name="main">
+                @Body
+            </RadzenContentContainer>
+        </ChildContent>
+    </RadzenBody>
 </div>
 
-<div class="main">
-    <div class="top-row px-4">
-        <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
-    </div>
+<RadzenSidebar Style="bottom:0px;top:50px" @ref="@sidebar0" @bind-Expanded="@sidebarExpanded">
+    <ChildContent>
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Icon="settings_input_composite" Text="Adapters" Path="adapters"></RadzenPanelMenuItem>
+        </RadzenPanelMenu>
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Icon="mediation" Text="Nodes" Path="nodes"></RadzenPanelMenuItem>
+        </RadzenPanelMenu>
+    </ChildContent>
+</RadzenSidebar>
 
-    <div class="content px-4">
-        @Body
-    </div>
-</div>
+@code {
+    RadzenSidebar sidebar0;
+    RadzenBody body0;
+    bool sidebarExpanded = true;
+    bool bodyExpanded = false;
+}
