@@ -4,15 +4,12 @@ using System.Text;
 
 namespace flexGateway.Shared
 {
-    public class AdapterConfigurationModel
+    public class NodeTypeModel
     {
         public string TypeFullName { get; set; }
         public string JsonConfiguration { get; set; }
-        public string Name { get; set; }
-
-        public AdapterConfigurationModel(string name, string typeFullName, string jsonConfiguration)
+        public NodeTypeModel(string typeFullName, string jsonConfiguration)
         {
-            Name = name;
             TypeFullName = typeFullName;
             JsonConfiguration = jsonConfiguration;
         }

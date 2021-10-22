@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using flexGateway.Interface;
+using System;
 
 namespace flexGateway.Shared
 {
@@ -9,10 +8,8 @@ namespace flexGateway.Shared
         public Guid Guid {get; set;}
         public Guid ParentGuid { get; set; }
         public string Name { get; set; }
-
-        public NodeModel()
-        {
-
-        }
+        public object Value { get; set; }
+        public NodeDataType NodeType { get; set; }
     }
+
 }

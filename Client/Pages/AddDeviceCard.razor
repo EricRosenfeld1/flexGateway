@@ -1,0 +1,123 @@
+﻿@page "/devices/add"
+@inject HttpClient Http
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@using flexGateway.Shared
+
+<RadzenCard style="margin-bottom:1rem;">
+    <div class="row">
+        <div class="col-md-12">
+            <b>Device Type</b>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom:1rem;">
+        <div class="col-md-12">
+            <RadzenDropDown Placeholder="Select Device Type" @bind-Value="selectedTypeModel" 
+                            Change="@(args => OnChange(args))" SelectedItem="selectedTypeModel" 
+                            TValue="DeviceTypeModel" Data="@types" TextProperty="TypeFullName"/>
+        </div>
+    </div>
+
+    @if (selectedTypeModel != null && configurationModel != null)
+    {
+        <div class="row" style="margin-bottom:1rem">
+            <div class="col-md-6">
+                <b>Name</b>
+                <RadzenTextBox @bind-Value="@configurationModel.Name"></RadzenTextBox>
+            </div>
+            <div class="col-md-6">
+                <b>Is Source</b>
+                <RadzenSwitch Style="display:block" @bind-Value="@configurationModel.IsSource"></RadzenSwitch>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <b>Configuration</b>
+            </div>
+        </div>
+        <div class="row" style="margin-bottom:1rem">
+            <div class="col-md-12">
+                <RadzenTextArea Style="width:500px;height:220px;resize:none" @bind-Value="configurationModel.JsonConfiguration"/>
+            </div>
+        </div>
+    }
+
+</RadzenCard>
+
+<div class="row" style="position:absolute; bottom:10px;">
+    <div class="col-md-12">
+        <RadzenButton Text="Add" Disabled="AddDisabled" Click="@(() => OnAddClick())"/>
+        <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Secondary" Click="@(() => this.DialogService.Close(true))" />
+    </div>
+</div>
+
+
+@code {
+    private List<DeviceTypeModel> types = new List<DeviceTypeModel>();
+    private DeviceTypeModel selectedTypeModel;
+    private DeviceConfigurationModel configurationModel;
+
+    private bool AddDisabled
+    {
+        get
+        {
+            if (selectedTypeModel != null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+
+    private void OnChange(object value)
+    {
+        configurationModel = new DeviceConfigurationModel()
+        {
+            JsonConfiguration = selectedTypeModel.JsonConfiguration,
+            TypeFullName = selectedTypeModel.TypeFullName
+        };
+    }
+
+    private async Task OnAddClick()
+    {
+        var resp = await Http.PostAsJsonAsync<DeviceConfigurationModel>("api/device/postDevice", configurationModel);
+
+        if (resp.IsSuccessStatusCode)
+            NotificationService.Notify(new NotificationMessage()
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Success",
+                Detail = "Device has been added",
+                Duration = 4000
+            });
+        else
+            NotificationService.Notify(new NotificationMessage()
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "Could not add device",
+                Duration = 4000
+            });
+
+        DialogService.Close(true);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        types = await Http.GetFromJsonAsync<List<DeviceTypeModel>>("api/device/getAllTypes");
+        if(types.Count == 0)
+        {
+            NotificationService.Notify(new NotificationMessage()
+            {
+                Duration = 4000,
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "No types found"
+            });
+        }
+    }
+}

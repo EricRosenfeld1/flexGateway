@@ -5,12 +5,8 @@ using System.Text;
 
 namespace MockingAdapter
 {
-    public class MockConfiguration : IAdapterConfiguration
+    public class MockConfiguration : IDeviceConfiguration
     {
-        public MockConfiguration()
-        {
-
-        }
-        public string Name { get; set; }
+        public int Seed { get; set; }
     }
 }

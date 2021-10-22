@@ -1,0 +1,68 @@
+﻿@page "/device/addNode/{deviceGuid}"
+@inject HttpClient Http
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@using flexGateway.Shared
+
+<RadzenCard style="margin-bottom:1rem;">
+    @if (configModel != null && typeModel != null)
+    {
+        <div class="row" style="margin-bottom:1rem">
+            <div class="col-md-6">
+                <b>Name</b>
+                <RadzenTextBox @bind-Value="@configModel.Name"></RadzenTextBox>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <b>Configuration</b>
+            </div>
+        </div>
+        <div class="row" style="margin-bottom:1rem">
+            <div class="col-md-12">
+                <RadzenTextArea Style="width:500px;height:220px;resize:none" @bind-Value="configModel.JsonConfiguration" />
+            </div>
+        </div>
+    }
+</RadzenCard>
+
+<div class="row">
+    <div class="col-md-12">
+        <RadzenButton Text="Add" Click="(() => OnAddClick())"/>
+        <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Secondary" Click="@(() => this.DialogService.Close(true))" />
+    </div>
+</div>
+
+
+
+@code {
+    [Parameter] public Guid DeviceGuid { get; set; }
+    public DeviceModel Device { get; set; }
+
+    private NodeTypeModel typeModel;
+    private NodeConfigurationModel configModel;
+
+
+    private async Task OnAddClick()
+    {
+        await Http.PostAsJsonAsync<NodeConfigurationModel>("api/node/addNode", configModel);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            typeModel = await Http.GetFromJsonAsync<NodeTypeModel>($"api/node/getType?DeviceGuid={DeviceGuid}");
+
+            configModel = new NodeConfigurationModel();
+            configModel.TypeFullName = typeModel.TypeFullName;
+            configModel.JsonConfiguration = typeModel.JsonConfiguration;
+            configModel.DeviceGuid = DeviceGuid;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

@@ -1,54 +1,54 @@
-﻿using flexGateway.Interface;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using flexGateway.Shared;
-using System.Diagnostics;
-using flexGateway.Common.Adapter;
-using flexGateway.Common.AdapterNode;
-using Microsoft.AspNetCore.Identity;
+using flexGateway.Common.Device;
+using flexGateway.Common.Node;
 using Newtonsoft.Json;
-using flexGateway.Common.MachineNode;
+using Microsoft.AspNetCore.SignalR;
+using flexGateway.Server.Hubs;
+using flexGateway.Interface;
 
 namespace flexGateway.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class NodeController: ControllerBase 
+    [Route("api/[controller]")]
+    public class NodeController : ControllerBase 
     {
-        private IAdapterManager adapterManager;
+        private IDeviceManager deviceManager;
         private INodeFactory nodeFactory;
         private NodeSynchronizationService nodeSynchroniztaionService;
+        private readonly IHubContext<ServiceHub, IServiceHub> hubContext;
 
-        public NodeController(IAdapterManager adapterManager, INodeFactory nodeFactory, NodeSynchronizationService service)
+        public NodeController(IDeviceManager deviceManager, INodeFactory nodeFactory, NodeSynchronizationService service, IHubContext<ServiceHub, IServiceHub> serviceHub)
         {
-            this.adapterManager = adapterManager;
+            this.deviceManager = deviceManager;
             this.nodeFactory = nodeFactory;
             nodeSynchroniztaionService = service;
+            hubContext = serviceHub;
         }
 
         [HttpPost("addNode")]
-        public IActionResult AddNode(Guid adapterGuid, NodeConfigurationModel nodeModel)  
+        public IActionResult AddNode(NodeConfigurationModel configModel)  
         {          
             try
             {
                 if (nodeSynchroniztaionService.IsRunning)
                     nodeSynchroniztaionService.StopAsync(new System.Threading.CancellationToken());
 
-                var adapter = adapterManager.Publishers.Where(x => x.Guid == adapterGuid).First();
+                var device = deviceManager.Devices.Where(x => x.Guid == configModel.DeviceGuid).FirstOrDefault();
 
-                if (adapter == null)
-                    if (adapterManager.Source.Guid == adapterGuid)
-                        adapter = adapterManager.Source;
-
-                if (adapter != null)
-                {
-                    var type = nodeFactory.RegisteredTypes.Keys.Where(x => x.FullName == nodeModel.TypeFullName).First();
-                    var node = nodeFactory.Create(type, nodeModel.Name, Guid.NewGuid(), nodeModel.JsonConfiguration);
-                    adapter.AddNode(node);
+                if (device != null)
+                {                   
+                    var node = nodeFactory.Create(configModel.TypeFullName, configModel.JsonConfiguration);
+                    node.NodeName = configModel.Name;
+                    node.Guid = Guid.NewGuid();
+                    node.NodeType = NodeDataType.Int;
+                    node.ParentGuid = Guid.Empty;
+                    
+                    device.AddNode(node);
                 }
             } catch (Exception ex)
             {
@@ -62,25 +62,41 @@ namespace flexGateway.Server.Controllers
             return Ok();        
         }
 
-        [HttpGet("getAllTypes")]
-        public IEnumerable<NodeConfigurationModel> GetAllTypes()
+        [HttpGet("getNodeType")]
+        public NodeTypeModel GetNodeType(Guid DeviceGuid)
         {
-            var r = new List<NodeConfigurationModel>();
+            var device = deviceManager.Devices.Where(x => x.Guid == DeviceGuid).FirstOrDefault();
+            if (device == null)
+                return null;
 
-            foreach(var item in nodeFactory.RegisteredTypes.Keys)
-            {
-                var adaterType = item.FullName;
-                var nodeType = nodeFactory.RegisteredTypes[item];
-                var configType = nodeFactory.ConfigurationTypes[nodeType];
+            var nodeType = nodeFactory.RegisteredTypes[device.GetType()];
+            if (nodeType == null)
+                return null;
 
-                r.Add(new NodeConfigurationModel(
-                    nodeType.Name,
-                    nodeType.FullName,
-                    JsonConvert.SerializeObject(Activator.CreateInstance(configType), Formatting.Indented),
-                    adaterType));
-            }
+            var configType = nodeFactory.ConfigurationTypes[nodeType];
+            if (configType == null)
+                return null;
 
-            return r;
+             return new NodeTypeModel(
+                    configType.FullName,
+                    JsonConvert.SerializeObject(Activator.CreateInstance(configType), Formatting.Indented));
         }
+
+        [HttpGet("getService")]
+        public async Task<IEnumerable<StartServiceModel>> GetService()
+        {
+            var list = new List<StartServiceModel>();
+            await hubContext.Clients.All.StatusUpdate("Hello World");
+            if (!nodeSynchroniztaionService.IsRunning)
+            {
+                await nodeSynchroniztaionService.StartAsync(new System.Threading.CancellationToken());
+                list.Add(new StartServiceModel("START", "WORLD"));
+            }
+            else
+                list.Add(new StartServiceModel("STOP", "WORLD"));
+
+            return list.ToArray();
+        }
+
     }
 }

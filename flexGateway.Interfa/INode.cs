@@ -7,7 +7,7 @@ namespace flexGateway.Interface
     {
         public Guid Guid { get; set; }
         public string NodeName { get; set; }
-        public INode ParentNode { get; set; }
+        public Guid ParentGuid { get; set; }
         public object Value { get; set; }
         public NodeDataType NodeType { get; set; }
         public INodeConfiguration Configuration { get; }

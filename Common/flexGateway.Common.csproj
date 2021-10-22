@@ -11,7 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Interface\flexGateway.Interface.csproj" />
+    <ProjectReference Include="..\flexGateway.Interfa\flexGateway.Interface.csproj" />
+    <ProjectReference Include="..\Shared\flexGateway.Shared.csproj" />
   </ItemGroup>
 
 </Project>

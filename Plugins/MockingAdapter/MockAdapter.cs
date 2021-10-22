@@ -1,53 +1,86 @@
 ﻿using flexGateway.Interface;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace MockingAdapter
 {
-    public class MockAdapter : IAdapter
+    public class MockAdapter : IDevice
     {
-        private HashSet<MockNode> _nodes { get; set; }
-
         public string Name { get; set; }
         public Guid Guid { get; set; }
-        public IAdapterConfiguration Configuration { get; set; }
-        public List<INode> Nodes { get; set; }
-        public MockAdapter(string name, Guid guid, MockConfiguration config)
-        {
-            Name = name;
-            Guid = guid;
-            Configuration = config;
-        }
+        public bool IsSource { get; set; }
+        public IDeviceConfiguration Configuration { get; set; }
+        public Exception LastException { get; set; }
+        public bool IsConnected { get; set; }
 
-        public void AddNode(string jsonConfig)
+        private HashSet<MockNode> _nodes { get; set; } = new();
+        private int _seed;
+
+        public MockAdapter(MockConfiguration config)
         {
-            throw new NotImplementedException();
+            Configuration = config;
+            _seed = config.Seed;
         }
 
         public Task ConnectAsync()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         public Task DisconnectAsync()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         public Task<List<INode>> GetDirtyNodesAsync()
+
         {
-            throw new NotImplementedException();
+            List<INode> dirtyNodes = new();
+            foreach (var node in _nodes)
+            {
+                var rnd = new Random(_seed);
+                var val = rnd.Next(node.Min, node.Min);
+
+                if ((int)node.Value != val)
+                {
+                    node.Value = val;
+                    dirtyNodes.Add(node);
+                }
+            }
+
+            return Task.FromResult(dirtyNodes);
         }
-        public Task PushChangesAsync(Dictionary<INode, object> changes)
+
+        public Task PushParentChangesAsync(Dictionary<Guid, object> changes)
         {
-            throw new NotImplementedException();
+            Dictionary<Guid, MockNode> bindings = _nodes.ToDictionary(x => x.ParentGuid, x => x);
+            foreach (var parentChange in changes)
+                if (parentChange.Key != Guid.Empty)
+                    bindings[parentChange.Key].Value = parentChange.Value;
+
+            return Task.CompletedTask;           
+        }
+
+        public Task PushChangesAsync(Dictionary<Guid, object> changes)
+        {
+            foreach (var change in changes)
+                _nodes.FirstOrDefault(x => x.Guid == change.Key).Value = change.Value;
+
+            return Task.CompletedTask;
         }
 
         public void AddNode(INode node)
         {
-            throw new NotImplementedException();
+            _nodes.Add(node as MockNode);
         }
+
+        public List<INode> GetNodes()
+        {
+            return _nodes.ToList<INode>();
+        }
+
+
     }
 }

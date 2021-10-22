@@ -15,7 +15,5 @@ namespace Sinumerik840d
         public int ZeilenZahl { get; set; }
         public int Typ { get; set; }
         public int Länge { get; set; }
-
-        public Sinumerik840dNodeConfiguration() {}
     }
 }

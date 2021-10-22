@@ -1,0 +1,83 @@
+@page "/devices"
+@using flexGateway.Shared
+@inject HttpClient Http
+@inject DialogService DialogService
+
+
+<div class="row">
+    <div class="col-xl-6">
+        <div class="row">
+            <div class="col">
+                <RadzenButton style="margin: 0 1rem 1rem 0" Text="Add" ButtonStyle="ButtonStyle.Primary" Click="@(() => OnAddClick())"/>
+                <RadzenButton style="margin: 0 1rem 1rem 0" Text="Remove" ButtonStyle="ButtonStyle.Secondary" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<RadzenDataGrid @ref="@_grid" Data="@_devices" TItem="@DeviceModel">
+    <Columns>
+        <RadzenDataGridColumn Width="200px" Title="Name" TItem="@DeviceModel" Property="Name" />
+        <RadzenDataGridColumn Width="100px" Title="Nodes" TItem="@DeviceModel">
+            <Template Context="data">
+                @(data.Nodes.Count())
+            </Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn Width="200px" Title="Add Node" TItem="@DeviceModel" Property="Guid">
+            <Template Context="data">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Text="Add" Click="@(() => AddNode(data.Guid))" />
+            </Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn Width="200px" Title="Guid" TItem="@DeviceModel" Property="Guid">
+            <Template Context="data">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Text="@data.Guid.ToString()" Click="@(() => OpenCard(data.Guid))" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+
+
+@code { 
+
+    RadzenDataGrid<DeviceModel> _grid;
+    private List<DeviceModel> _devices = new List<DeviceModel>();
+    private bool _buttonBusy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDevices();
+    }
+
+    private async Task OnAddClick()
+    {
+        await DialogService.OpenAsync<AddDeviceCard>("Add Device",
+            new Dictionary<string, object>(),
+            new DialogOptions() { Width = "600px", Height = "530px" });
+
+        await LoadDevices();
+    }
+
+    private async Task OpenCard(Guid guid)
+    {
+        await DialogService.OpenAsync<DeviceInfoCard>("Device Info",
+                new Dictionary<string, object>() { { "DeviceGuid", guid } },
+                new DialogOptions() { Width = "700px", Height = "530px" });
+    }
+
+    public async Task AddNode(Guid guid)
+    {
+        await DialogService.OpenAsync<AddNodeCard>("Device Info",
+                new Dictionary<string, object>() { { "DeviceGuid", guid } },
+                new DialogOptions() { Width = "700px", Height = "530px" });
+    }
+
+    private async Task LoadDevices()
+    {
+        _devices = await Http.GetFromJsonAsync<List<DeviceModel>>("api/device/getDevices");
+        await _grid.Reload();
+    }
+}
+

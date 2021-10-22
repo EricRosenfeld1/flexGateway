@@ -7,13 +7,20 @@ namespace MockingAdapter
 {
     public class MockNode : INode
     {
-        public Guid Guid => throw new NotImplementedException();
+        public Guid Guid { get; set; }
+        public string NodeName { get; set; }
+        public Guid ParentGuid { get; set; }
+        public object Value { get; set; }
+        public NodeDataType NodeType { get; set; }
+        public INodeConfiguration Configuration { get; set; }
 
-        public string NodeName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public INode ParentNode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public object Value { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public NodeDataType NodeType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public string Configuration => throw new NotImplementedException();
+        public int Max { get; set; }
+        public int Min { get; set; }
+        public MockNode(MockNodeConfiguration config)
+        {
+            Configuration = config;
+            Max = config.Max;
+            Min = config.Min;
+        }
     }
 }

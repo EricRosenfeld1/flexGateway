@@ -4,36 +4,37 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace flexGateway.Common.AdapterNode
+namespace flexGateway.Common.Node
 {
     public class NodeFactory : INodeFactory
     {
         public Dictionary<Type, Type> RegisteredTypes { get; private set; } = new();
         public Dictionary<Type, Type> ConfigurationTypes { get; private set; } = new();
-        public void Register(Type adapterType, Type nodeType, Type configType)
+        public void Register(Type deviceType, Type nodeType, Type configType)
         {
-            if (typeof(IAdapter).IsAssignableFrom(adapterType))
+            if (typeof(IDevice).IsAssignableFrom(deviceType))
                 if (typeof(INode).IsAssignableFrom(nodeType))
                     if (typeof(INodeConfiguration).IsAssignableFrom(configType))
                     {
-                        RegisteredTypes.Add(adapterType, nodeType);
+                        RegisteredTypes.Add(deviceType, nodeType);
                         ConfigurationTypes.Add(nodeType, configType);
                     }
         }
 
-        public INode Create(Type nodeType, string name, Guid guid, string configAsJson)
+        public INode Create(string typeFullName, string configAsJson)
         {
-            if (!RegisteredTypes.Keys.Contains(nodeType))
+            Type nodeType = ConfigurationTypes.Where(x => x.Value.FullName == typeFullName).FirstOrDefault().Key;
+            if (nodeType == null)
                 throw new Exception("Type not registered");
 
             Type configType;
-            bool success = RegisteredTypes.TryGetValue(nodeType, out configType);
+            bool success = ConfigurationTypes.TryGetValue(nodeType, out configType);
 
             if (success)
             {
                 var config = JsonConvert.DeserializeObject(configAsJson, configType);
 
-                object[] paras = { name, guid, config };
+                object[] paras = { config };
                 var instance = Activator.CreateInstance(nodeType, paras);
                 return (INode)instance;
             }

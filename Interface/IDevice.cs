@@ -7,16 +7,16 @@ namespace flexGateway.Interface
     /// <summary>
     /// Provides connectivity to a PLC, CNC, industrial device or similar
     /// </summary>
-    public interface IAdapter
+    public interface IDevice
     {
         public string Name { get; set; }
-        public List<INode> Nodes { get; }
-        public Guid Guid { get; }
+        public Guid Guid { get; set; }
+        public bool IsSource { get; set; } 
 
         /// <summary>
-        /// JSON configuration string which contains all data to build the adapter
+        /// JSON configuration string which contains all data to build the device
         /// </summary>
-        public IAdapterConfiguration Configuration { get; }
+        public IDeviceConfiguration Configuration { get; }
 
         /// <summary>
         /// Retreive a list of <see cref="INode"/> where the value has changed.
@@ -36,5 +36,7 @@ namespace flexGateway.Interface
         public Task DisconnectAsync();
 
         public void AddNode(INode node);
+
+        public List<INode> GetNodes();
     }
 }

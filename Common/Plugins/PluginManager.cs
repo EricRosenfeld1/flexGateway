@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using flexGateway.Common.Adapter;
-using flexGateway.Common.AdapterNode;
+using flexGateway.Common.Device;
+using flexGateway.Common.Node;
 using flexGateway.Interface;
 using Microsoft.Extensions.Logging;
 
@@ -10,11 +10,11 @@ namespace flexGateway.Common.Plugins
 {
     public class PluginManager
     {
-        private IAdapterFactory adapterFactory;
+        private IDeviceFactory deviceFactory;
         private INodeFactory nodeFactory;
-        public PluginManager(IAdapterFactory adapterFactory, INodeFactory nodeFactory)
+        public PluginManager(IDeviceFactory deviceFactory, INodeFactory nodeFactory)
         {
-            this.adapterFactory = adapterFactory;
+            this.deviceFactory = deviceFactory;
             this.nodeFactory = nodeFactory;
         }
 
@@ -29,20 +29,19 @@ namespace flexGateway.Common.Plugins
                     Assembly plugin = LoadPlugin(Path.Combine(dir, name));
 
                     Type[] types = plugin.GetTypes();
-                    Type adapterType = null;
+                    Type deviceType = null;
                     Type nodeType = null;
                     Type configType = null;
                     Type nodeConfigType = null;
 
                     for (int i = 0; i <= types.Length - 1; i++)                   
-                        if (typeof(IAdapter).IsAssignableFrom(types[i]))
+                        if (typeof(IDevice).IsAssignableFrom(types[i]))
                         {
-                            adapterType = types[i];
-                        }
-                        else if (typeof(INode).IsAssignableFrom(types[i]))
+                            deviceType = types[i];
+                        } else if (typeof(INode).IsAssignableFrom(types[i]))
                         {
                             nodeType = types[i];
-                        } else if (typeof(IAdapterConfiguration).IsAssignableFrom(types[i]))
+                        } else if (typeof(IDeviceConfiguration).IsAssignableFrom(types[i]))
                         {
                             configType = types[i];
                         }else if (typeof(INodeConfiguration).IsAssignableFrom(types[i]))
@@ -50,13 +49,13 @@ namespace flexGateway.Common.Plugins
                             nodeConfigType = types[i];
                         }
 
-                    if (adapterType == null || nodeType == null || configType == null || nodeConfigType == null)
+                    if (deviceType == null || nodeType == null || configType == null || nodeConfigType == null)
                         throw new Exception("Plugin error");
 
-                    adapterFactory.Register(adapterType, configType);
-                    nodeFactory.Register(adapterType, nodeType, nodeConfigType);
+                    deviceFactory.Register(deviceType, configType);
+                    nodeFactory.Register(deviceType, nodeType, nodeConfigType);
 
-                    logger.LogInformation($"Plugin: {adapterType.Name} loaded");
+                    logger.LogInformation($"Plugin: {deviceType.Name} loaded");
 
                 } catch (Exception ex)
                 {

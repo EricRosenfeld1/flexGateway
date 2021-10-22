@@ -4,12 +4,9 @@
     <TargetFramework>net5.0</TargetFramework>
     <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <ProjectReference Include="..\..\Interface\flexGateway.Interface.csproj">
-      <Private>false</Private>
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </ProjectReference>
+    <ProjectReference Include="..\..\flexGateway.Interfa\flexGateway.Interface.csproj" />
   </ItemGroup>
 
 </Project>
