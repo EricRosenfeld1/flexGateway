@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -6,7 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\flexGateway.Interfa\flexGateway.Interface.csproj" />
+    <ProjectReference Include="..\..\Interface\flexGateway.Interface.csproj">
+	      <Private>false</Private>
+        <ExcludeAssets>runtime</ExcludeAssets>
+	</ProjectReference>	
   </ItemGroup>
 
 </Project>

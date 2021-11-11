@@ -2,55 +2,18 @@
 @using flexGateway.Shared
 @using Microsoft.AspNetCore.SignalR.Client;
 @inject HttpClient Http
-@implements IAsyncDisposable
 
 <h1>Nodes</h1>
 
-@if (types != null)
-{
-<select id="select-box">
-    @foreach (var item in types)
-    {
-        <option value="@item.TypeFullName">@item.Name</option>
-    }
-</select>
 
-<RadzenButton Text="Start Service" Click="@(args => OnStartServiceClick())"/>
-<p>@status</p>
-}
+
 
 @code {
-        private NodeConfigurationModel[] types;
-        private HubConnection hubConnection;
-        private string status = "null";
-
         protected override async Task OnInitializedAsync()
         {
-            types = await Http.GetFromJsonAsync<NodeConfigurationModel[]>("node/getalltypes");
-            hubConnection = new HubConnectionBuilder()
-                .WithUrl("https://localhost:5001/serviceHub")
-                .Build();
+           
 
-            hubConnection.On<string>("StatusUpdate", (update) =>
-            {
-                status = update;
-                StateHasChanged();
-            });
 
-            await hubConnection.StartAsync();
         }
-
-        private async Task OnStartServiceClick()
-        {
-            Console.WriteLine(Http.BaseAddress);
-            var response = await Http.GetFromJsonAsync<StartServiceModel[]>("node/getService");
-            Console.WriteLine(response[0].Status);
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (hubConnection != null)
-            await hubConnection.DisposeAsync();
-    }
 }
 

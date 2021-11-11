@@ -14,7 +14,7 @@ namespace flexGateway.Common.Device
         public List<IDevice> Publishers { get; }
         public List<IDevice> Devices { get; }
         public bool AddDevice(IDevice device);
-        public bool AddDevice(DeviceConfigurationModel device);
+        public Guid AddDevice(DeviceConfigurationModel device);
         public bool RemoveDevice(Guid deviceGuid);
     }
 }

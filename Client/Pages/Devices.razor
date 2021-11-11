@@ -17,28 +17,37 @@
 
 <RadzenDataGrid @ref="@_grid" Data="@_devices" TItem="@DeviceModel">
     <Columns>
-        <RadzenDataGridColumn Width="200px" Title="Name" TItem="@DeviceModel" Property="Name" />
-        <RadzenDataGridColumn Width="100px" Title="Nodes" TItem="@DeviceModel">
+        <RadzenDataGridColumn Width="70px" Title="Name" TItem="@DeviceModel" Property="Name" />
+        <RadzenDataGridColumn Width="100px" Title="Guid" TItem="@DeviceModel" Property="Guid"/>
+        <RadzenDataGridColumn Width="50px" Title="Status" TItem="@DeviceModel" Property="IsConnected">
             <Template Context="data">
-                @(data.Nodes.Count())
+                @if (data.IsConnected)
+                {
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Connected" 
+                                  Click="@(args => StartStopService(data))"/>
+                }
+                else
+                {
+                    if (data.LastException != null)
+                    {
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Text="Error" Click="@(args => StartStopService(data))"/> 
+                    }
+                    else
+                    {
+                         <RadzenButton ButtonStyle="ButtonStyle.Warning" Text="Not Connected" Click="@(args => StartStopService(data))" />
+                    }
+                }
             </Template>
         </RadzenDataGridColumn>
-
-        <RadzenDataGridColumn Width="200px" Title="Add Node" TItem="@DeviceModel" Property="Guid">
+        <RadzenDataGridColumn Width="30px" Title="Info" TItem="@DeviceModel" Property="Guid">
             <Template Context="data">
-                <RadzenButton ButtonStyle="ButtonStyle.Info" Text="Add" Click="@(() => AddNode(data.Guid))" />
-            </Template>
-        </RadzenDataGridColumn>
-
-        <RadzenDataGridColumn Width="200px" Title="Guid" TItem="@DeviceModel" Property="Guid">
-            <Template Context="data">
-                <RadzenButton ButtonStyle="ButtonStyle.Info" Text="@data.Guid.ToString()" Click="@(() => OpenCard(data.Guid))" />
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Click="@(() => OpenCard(data.Guid))">
+                    <RadzenIcon Icon="info"/>
+                </RadzenButton>
             </Template>
         </RadzenDataGridColumn>
     </Columns>
 </RadzenDataGrid>
-
-
 
 @code { 
 
@@ -78,6 +87,19 @@
     {
         _devices = await Http.GetFromJsonAsync<List<DeviceModel>>("api/device/getDevices");
         await _grid.Reload();
+    }
+
+    private async Task StartStopService(DeviceModel device)
+    {
+        if (device.IsConnected)
+        {
+            var resp = await DialogService.Confirm("Stop service?", device.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No"});
+            
+        } 
+        else
+        {
+            var resp = await DialogService.Confirm("Start service?", device.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+        }
     }
 }
 

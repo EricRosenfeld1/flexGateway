@@ -11,30 +11,28 @@ namespace flexGateway.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DeviceController : ControllerBase
+    public class DevicesController : ControllerBase
     {
         private readonly IDeviceManager _deviceManager;
-        private readonly IDeviceFactory _deviceFactory;
         private readonly NodeSynchronizationService _nodeSynchroniztaionService;
 
-        public DeviceController(IDeviceFactory deviceFactory, IDeviceManager deviceManager, NodeSynchronizationService nodeSynchroniztaionService)
+        public DevicesController(IDeviceManager deviceManager, NodeSynchronizationService nodeSynchroniztaionService)
         {
-            _deviceFactory = deviceFactory;
             _deviceManager = deviceManager;
             _nodeSynchroniztaionService = nodeSynchroniztaionService;
         }
 
-        [HttpPost("postDevice")]
+        [HttpPost]
         public IActionResult PostDevice(DeviceConfigurationModel deviceModel)
         {
-            var success = AddDevice(deviceModel);
-            if (success)
-                return Ok();
+            var guid = AddDevice(deviceModel);
+            if (guid != Guid.Empty)
+                return Ok(guid);
             else
                 return UnprocessableEntity();
         }
 
-        [HttpGet("getDevices")]
+        [HttpGet]
         public ActionResult<IEnumerable<DeviceModel>> GetDevices()
         {
             var r = new List<DeviceModel>();
@@ -58,7 +56,7 @@ namespace flexGateway.Server.Controllers
                     Guid = item.Guid,
                     IsSource = item.IsSource,
                     TypeFullName = item.GetType().FullName,
-                    LastException = item.LastException.ToString(),
+                    LastException = item.LastException?.ToString(),
                     IsConnected = item.IsConnected,
                     Nodes = nodes
                 });
@@ -67,22 +65,7 @@ namespace flexGateway.Server.Controllers
             return r.ToArray();
         }
 
-        [HttpGet("getAllTypes")]
-        public ActionResult<IEnumerable<DeviceTypeModel>> GetAllTypes()
-        {
-            var types = new List<DeviceTypeModel>();
-            foreach (var item in _deviceFactory.RegisteredTypes.Keys)
-                types.Add(new DeviceTypeModel()
-                {
-                    TypeFullName = item.FullName,
-                    JsonConfiguration = JsonConvert.SerializeObject(Activator.CreateInstance(_deviceFactory.RegisteredTypes[item]),
-                    Formatting.Indented)
-                });
-
-            return types.ToArray();
-        }
-
-        [HttpGet("getDevice/{guid}")]
+        [HttpGet("{guid}")]
         public ActionResult<DeviceModel> GetDevice(Guid guid)
         {
             var device = _deviceManager.Devices.Where(x => x.Guid == guid).FirstOrDefault();
@@ -95,7 +78,7 @@ namespace flexGateway.Server.Controllers
                 Guid = device.Guid,
                 IsSource = device.IsSource,
                 TypeFullName = device.GetType().FullName,
-                LastException = device.LastException.ToString(),
+                LastException = device.LastException?.ToString(),
                 IsConnected = device.IsConnected
             };
 
@@ -118,7 +101,14 @@ namespace flexGateway.Server.Controllers
             return model;
         }
 
-        private bool AddDevice(DeviceConfigurationModel deviceModel)
+        [HttpDelete("{guid}")]
+        public IActionResult DeleteDevice(Guid guid)
+        {
+            var success = _deviceManager.RemoveDevice(guid);
+            return Ok(success);
+        }
+
+        private Guid AddDevice(DeviceConfigurationModel deviceModel)
         {
             try
             {
@@ -127,9 +117,9 @@ namespace flexGateway.Server.Controllers
 
                 return _deviceManager.AddDevice(deviceModel);              
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return false;
+                return Guid.Empty;
             }
             finally
             {

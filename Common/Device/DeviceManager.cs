@@ -15,7 +15,6 @@ namespace flexGateway.Common.Device
     {
         private ILogger<DeviceManager> _logger;
         private IDeviceFactory _deviceFactory;
-
         private object _lock = new object();
         private List<IDevice> _devices = new List<IDevice>();
         public List<IDevice> Devices 
@@ -62,7 +61,7 @@ namespace flexGateway.Common.Device
             return true;
         }
 
-        public bool AddDevice(DeviceConfigurationModel model)
+        public Guid AddDevice(DeviceConfigurationModel model)
         {
             try
             {
@@ -71,14 +70,18 @@ namespace flexGateway.Common.Device
                 device.Name = model.Name;
                 device.IsSource = model.IsSource;
 
-                return AddDevice(device);                   
+                if (AddDevice(device))
+                    return device.Guid;
+                else
+                    return Guid.Empty;
             } 
             catch(Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return false;
+                return Guid.Empty;
             }
         }
+
         public bool RemoveDevice(Guid deviceGuid)
         {
             if(Source.Guid == deviceGuid)

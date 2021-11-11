@@ -15,14 +15,15 @@ namespace flexGateway.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class NodeController : ControllerBase 
+    public class NodesController : ControllerBase 
     {
         private IDeviceManager deviceManager;
         private INodeFactory nodeFactory;
         private NodeSynchronizationService nodeSynchroniztaionService;
         private readonly IHubContext<ServiceHub, IServiceHub> hubContext;
 
-        public NodeController(IDeviceManager deviceManager, INodeFactory nodeFactory, NodeSynchronizationService service, IHubContext<ServiceHub, IServiceHub> serviceHub)
+        public NodesController(IDeviceManager deviceManager, INodeFactory nodeFactory, 
+            NodeSynchronizationService service)
         {
             this.deviceManager = deviceManager;
             this.nodeFactory = nodeFactory;
@@ -30,15 +31,15 @@ namespace flexGateway.Server.Controllers
             hubContext = serviceHub;
         }
 
-        [HttpPost("addNode")]
-        public IActionResult AddNode(NodeConfigurationModel configModel)  
-        {          
+        [HttpPost("{deviceGuid}/nodes")]
+        public IActionResult AddNode(Guid deviceGuid, NodeConfigurationModel configModel)  
+        {         
             try
             {
                 if (nodeSynchroniztaionService.IsRunning)
                     nodeSynchroniztaionService.StopAsync(new System.Threading.CancellationToken());
 
-                var device = deviceManager.Devices.Where(x => x.Guid == configModel.DeviceGuid).FirstOrDefault();
+                var device = deviceManager.Devices.Where(x => x.Guid == deviceGuid).FirstOrDefault();
 
                 if (device != null)
                 {                   
