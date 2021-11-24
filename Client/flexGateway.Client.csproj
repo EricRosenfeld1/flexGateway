@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>    
+    <ProjectReference Include="..\Plugin\flexGateway.Plugin.csproj" />    
     <ProjectReference Include="..\Shared\flexGateway.Shared.csproj" />
   </ItemGroup>
 </Project>

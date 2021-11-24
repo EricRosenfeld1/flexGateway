@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugin", "Plugin", "{6E3920
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MockingAdapter", "Plugins\MockingAdapter\MockingAdapter.csproj", "{072B06D6-F208-4BCA-B687-F23C504469E3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "flexGateway.Interface", "Interface\flexGateway.Interface.csproj", "{18309331-E33E-4F68-9911-3CB2DFC0BA95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "flexGateway.Plugin", "Plugin\flexGateway.Plugin.csproj", "{18309331-E33E-4F68-9911-3CB2DFC0BA95}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sinumerik840d", "Plugins\Sinumerik840d\Sinumerik840d.csproj", "{E6B749EF-9172-4005-8E68-4C0CA7E9247C}"
 EndProject

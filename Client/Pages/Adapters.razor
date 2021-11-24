@@ -1,0 +1,163 @@
+@page "/adapters"
+@using flexGateway.Shared
+@inject HttpClient Http
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+
+
+<div class="row">
+    <div class="col-xl-6">
+        <div class="row">
+            <div class="col">
+                <RadzenButton style="margin: 0 1rem 1rem 0" Text="Add" ButtonStyle="ButtonStyle.Primary" Click="@(() => OnAddClick())"/>
+                <RadzenButton style="margin: 0 1rem 1rem 0" Text="Remove" ButtonStyle="ButtonStyle.Secondary" Click="@(() => OnRemoveClick())" 
+                              Disabled="removeDisabled"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<RadzenDataGrid @ref="@grid" Data="@adapters" TItem="@AdapterModel" @bind-Value="@selectedAdapters" 
+                SelectionMode="DataGridSelectionMode.Single">
+    <Columns>
+        <RadzenDataGridColumn Width="70px" Title="Name" TItem="@AdapterModel" Property="Name" />
+        <RadzenDataGridColumn Width="100px" Title="Guid" TItem="@AdapterModel" Property="Guid"/>
+        <RadzenDataGridColumn Width="50px" Title="Status" TItem="@AdapterModel" Property="IsConnected">
+            <Template Context="data">
+                @if (data.IsConnected)
+                {
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Connected" 
+                                  Click="@(args => StartStopService(data))"/>
+                }
+                else
+                {
+                    if (data.LastException != null)
+                    {
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Text="Error" Click="@(args => StartStopService(data))"/> 
+                    }
+                    else
+                    {
+                         <RadzenButton ButtonStyle="ButtonStyle.Warning" Text="Not Connected" Click="@(args => StartStopService(data))" />
+                    }
+                }
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Width="30px" Title="Info" TItem="@AdapterModel" Property="Guid">
+            <Template Context="data">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Click="@(() => OpenCard(data.Guid))">
+                    <RadzenIcon Icon="info"/>
+                </RadzenButton>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code { 
+
+    RadzenDataGrid<AdapterModel> grid;
+    private List<AdapterModel> adapters = new List<AdapterModel>();
+    private IList<AdapterModel> _selectedAdapters;
+    private IList<AdapterModel> selectedAdapters
+    {
+        get
+        {
+            return _selectedAdapters;
+        }
+        set
+        {
+            removeDisabled = false;
+            _selectedAdapters = value;
+            StateHasChanged();
+        }
+    }
+
+    private bool removeDisabled = true;
+    private bool buttonBusy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAdapters();
+    }
+
+    private async Task OnAddClick()
+    {
+        await DialogService.OpenAsync<AddAdapterCard>("Add Adapter",
+            new Dictionary<string, object>(),
+            new DialogOptions() { Width = "600px", Height = "530px" });
+
+        await LoadAdapters();
+    }
+
+    private async Task OpenCard(Guid guid)
+    {
+        await DialogService.OpenAsync<AdapterInfoCard>("Adapter Info",
+                new Dictionary<string, object>() { { "adapterGuid", guid } },
+                new DialogOptions() { Width = "700px", Height = "530px" });
+    }
+
+    public async Task AddNode(Guid guid)
+    {
+        await DialogService.OpenAsync<AddNodeCard>("Adapter Info",
+                new Dictionary<string, object>() { { "Adapter", guid } },
+                new DialogOptions() { Width = "700px", Height = "530px" });
+    }
+
+    private async Task LoadAdapters()
+    {
+        adapters = await Http.GetFromJsonAsync<List<AdapterModel>>("api/adapters");
+        await grid.Reload();
+    }
+
+    private async Task StartStopService(AdapterModel device)
+    {
+        if (device.IsConnected)
+        {
+            var resp = await DialogService.Confirm("Stop service?", device.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No"});
+
+        }
+        else
+        {
+            var resp = await DialogService.Confirm("Start service?", device.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+        }
+    }
+
+    private async Task OnRemoveClick()
+    {
+        if (selectedAdapters != null || selectedAdapters.Count > 0)
+        {
+            var adapter = selectedAdapters[0];
+            var dialogResult = await DialogService.Confirm($"Do you want to delete '{adapter.Name}' ?",
+                "Remove adapter", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+
+            bool success = false;
+            if (dialogResult.HasValue && dialogResult.Value)
+            {
+                var response = await Http.DeleteAsync($"api/adapters/{adapter.Guid}");
+                if (response.IsSuccessStatusCode)
+                {
+                    success = await response.Content.ReadFromJsonAsync<bool>();
+                    NotificationService.Notify(new NotificationMessage()
+                    {
+                        Duration = 4000,
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Success",
+                        Detail = $"Successfully deleted adapter '{adapter.Name}'"
+                    });
+                }
+                else
+                {
+                    NotificationService.Notify(new NotificationMessage()
+                    {
+                        Duration = 4000,
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = "Error while deleting adapter"
+                    });
+                }
+            }
+        }
+
+        await LoadAdapters();
+    }
+}
+

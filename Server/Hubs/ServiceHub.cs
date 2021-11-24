@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
+using System.Threading.Tasks;
 
 namespace flexGateway.Server.Hubs
 {
@@ -11,5 +11,5 @@ namespace flexGateway.Server.Hubs
     public class ServiceHub : Hub<IServiceHub>
     {
 
-    } 
+    }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace flexGateway.Shared
+﻿namespace flexGateway.Shared
 {
     public class NodeTypeModel
     {

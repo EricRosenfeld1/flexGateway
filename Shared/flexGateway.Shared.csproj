@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Interface\flexGateway.Interface.csproj" />
+    <ProjectReference Include="..\Plugin\flexGateway.Plugin.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,27 +1,28 @@
-﻿using flexGateway.Interface;
+﻿using flexGateway.Plugin;
+using flexGateway.Plugin.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace flexGateway.Common.Node
+namespace flexGateway.Common.Nodes
 {
     public class NodeFactory : INodeFactory
     {
         public Dictionary<Type, Type> RegisteredTypes { get; private set; } = new();
         public Dictionary<Type, Type> ConfigurationTypes { get; private set; } = new();
-        public void Register(Type deviceType, Type nodeType, Type configType)
+
+        public void Register(Type adapterType, Type nodeType, Type configType)
         {
-            if (typeof(IDevice).IsAssignableFrom(deviceType))
-                if (typeof(INode).IsAssignableFrom(nodeType))
-                    if (typeof(INodeConfiguration).IsAssignableFrom(configType))
+            if (typeof(Adapter).IsAssignableFrom(adapterType))
+                if (typeof(Adapter).IsAssignableFrom(nodeType))
+                    if (typeof(IAdapterConfiguration).IsAssignableFrom(configType))
                     {
-                        RegisteredTypes.Add(deviceType, nodeType);
+                        RegisteredTypes.Add(adapterType, nodeType);
                         ConfigurationTypes.Add(nodeType, configType);
                     }
         }
-
-        public INode Create(string typeFullName, string configAsJson)
+        public Node Create(string typeFullName, string configAsJson)
         {
             Type nodeType = ConfigurationTypes.Where(x => x.Value.FullName == typeFullName).FirstOrDefault().Key;
             if (nodeType == null)
@@ -36,7 +37,7 @@ namespace flexGateway.Common.Node
 
                 object[] paras = { config };
                 var instance = Activator.CreateInstance(nodeType, paras);
-                return (INode)instance;
+                return (Node)instance;
             }
             else
                 return null;

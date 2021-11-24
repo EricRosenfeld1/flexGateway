@@ -1,25 +1,19 @@
 ﻿using DotNetSiemensPLCToolBoxLibrary.Communication;
-using flexGateway.Interface;
-using Newtonsoft.Json;
-using System;
+using flexGateway.Plugin;
+using flexGateway.Plugin.Configuration;
 
 namespace Sinumerik840d
 {
-    public class Sinumerik840dNode : INode
+    public class Sinumerik840dNode : Node
     {
-        public INodeConfiguration Configuration { get; private set; }
-        public Guid Guid { get; set; }
-        public string NodeName { get; set; }
-        public object Value { get; set; }
-        public Guid ParentGuid { get; set; }
-        public NodeDataType NodeType { get; set; }
-
         public NC_Var NCVar;
 
-        public Sinumerik840dNode(Sinumerik840dNodeConfiguration config) 
+        public override void Configure(INodeConfiguration configuration)
         {
-            Configuration = config;
+            var c = configuration as Sinumerik840dNodeConfiguration;
             NCVar = new NC_Var();
+
+            base.Configure(configuration);
         }
     }
 }

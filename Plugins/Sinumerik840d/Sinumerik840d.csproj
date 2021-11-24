@@ -12,10 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Interface\flexGateway.Interface.csproj">	
-		<Private>false</Private>
-		<ExcludeAssets>runtime</ExcludeAssets>
-	</ProjectReference>
+    <ProjectReference Include="..\..\Plugin\flexGateway.Plugin.csproj" >
+      <ExcludeAssets>runtime</ExcludeAssets>
+      <Private>false</Private>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

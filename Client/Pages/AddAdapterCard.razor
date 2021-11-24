@@ -1,4 +1,4 @@
-﻿@page "/devices/add"
+﻿@page "/adapters/add"
 @inject HttpClient Http
 @inject DialogService DialogService
 @inject NotificationService NotificationService
@@ -14,7 +14,7 @@
         <div class="col-md-12">
             <RadzenDropDown Placeholder="Select Device Type" @bind-Value="selectedTypeModel" 
                             Change="@(args => OnChange(args))" SelectedItem="selectedTypeModel" 
-                            TValue="DeviceTypeModel" Data="@types" TextProperty="TypeFullName"/>
+                            TValue="AdapterTypeModel" Data="@types" TextProperty="TypeFullName"/>
         </div>
     </div>
 
@@ -54,9 +54,9 @@
 
 
 @code {
-    private List<DeviceTypeModel> types = new List<DeviceTypeModel>();
-    private DeviceTypeModel selectedTypeModel;
-    private DeviceConfigurationModel configurationModel;
+    private List<AdapterTypeModel> types = new List<AdapterTypeModel>();
+    private AdapterTypeModel selectedTypeModel;
+    private AdapterConfigurationModel configurationModel;
 
     private bool AddDisabled
     {
@@ -75,7 +75,7 @@
 
     private void OnChange(object value)
     {
-        configurationModel = new DeviceConfigurationModel()
+        configurationModel = new AdapterConfigurationModel()
         {
             JsonConfiguration = selectedTypeModel.JsonConfiguration,
             TypeFullName = selectedTypeModel.TypeFullName
@@ -84,7 +84,7 @@
 
     private async Task OnAddClick()
     {
-        var resp = await Http.PostAsJsonAsync<DeviceConfigurationModel>("api/device/postDevice", configurationModel);
+        var resp = await Http.PostAsJsonAsync<AdapterConfigurationModel>("api/adapters", configurationModel);
 
         if (resp.IsSuccessStatusCode)
             NotificationService.Notify(new NotificationMessage()
@@ -108,7 +108,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        types = await Http.GetFromJsonAsync<List<DeviceTypeModel>>("api/device/getAllTypes");
+        types = await Http.GetFromJsonAsync<List<AdapterTypeModel>>("api/adaptertypes");
         if(types.Count == 0)
         {
             NotificationService.Notify(new NotificationMessage()

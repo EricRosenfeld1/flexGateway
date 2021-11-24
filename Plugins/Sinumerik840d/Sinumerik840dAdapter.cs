@@ -1,29 +1,21 @@
-﻿using System;
+﻿using DotNetSiemensPLCToolBoxLibrary.Communication;
+using flexGateway.Plugin;
+using flexGateway.Plugin.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DotNetSiemensPLCToolBoxLibrary.Communication;
-using flexGateway.Interface;
-using Newtonsoft.Json;
 
 namespace Sinumerik840d
 {
-    public class Sinumerik840dAdapter : IDevice
+    public class Sinumerik840dAdapter : Adapter
     {
-        private PLCConnection connection { get; set; }
-        private HashSet<Sinumerik840dNode> nodes { get; set; } = new();
+        private PLCConnection _connection { get; set; }
+        private HashSet<Sinumerik840dNode> _nodes { get; set; } = new();
 
-        public string Name { get; set; }
-        public Guid Guid { get; set; }
-        public IDeviceConfiguration Configuration { get; private set; }
-        public bool IsSource { get; set; }
-        public bool IsConnected { get; set; }
-        public Exception LastException { get; set; }
-
-        public Sinumerik840dAdapter(Siumerik840dConfiguration config)
+        public override void Configure(IAdapterConfiguration configuration)
         {
-            Configuration = config;
-
+            var config = configuration as Siumerik840dConfiguration;
             var plcConfig = new PLCConnectionConfiguration()
             {
                 ConnectionName = "flexGateway Connection",
@@ -35,76 +27,78 @@ namespace Sinumerik840d
                 Timeout = TimeSpan.FromSeconds(5)
             };
 
-            connection = new PLCConnection(plcConfig);
+            _connection = new PLCConnection(plcConfig);
+
+            base.Configure(configuration);
         }
 
-        public Task ConnectAsync()
+        public override Task ConnectAsync()
         {
-            connection.Connect();
+            _connection.Connect();
             return Task.CompletedTask;
         }
 
-        public Task DisconnectAsync()
+        public override Task DisconnectAsync()
         {
-            connection.Disconnect();
+            _connection.Disconnect();
             return Task.CompletedTask;
         }
 
-        public Task<List<INode>> GetDirtyNodesAsync()
+        public override Task<List<Node>> GetDirtyNodesAsync()
         {
-            List<INode> dirtyNodes = new();
-            foreach (var node in nodes)
+            List<Node> dirtyNodes = new();
+            foreach (var node in _nodes)
             {
                 // TODO: we can pass a list for perfomance reasons, the library does optimization
-                var value = connection.ReadValue(node.NCVar);
+                var value = _connection.ReadValue(node.NCVar);
                 if (value != node.Value)
                     dirtyNodes.Add(node);
             }
             return Task.FromResult(dirtyNodes);
         }
 
-        public Task PushChangesAsync(Dictionary<Guid, object> changes)
+        public override Task PushChangesAsync(HashSet<NodeChange> changes)
         {
-            Dictionary<Guid, Sinumerik840dNode> bindings = nodes.ToDictionary(x => x.Guid, x => x);
+            Dictionary<Guid, Sinumerik840dNode> bindings = _nodes.ToDictionary(x => x.Guid, x => x);
 
-            foreach (var sourceChange in changes.Keys)
+            foreach (var change in changes)
             {
-                var sinumerikNode = bindings[sourceChange];
-                PLCNckTag tag = new PLCNckTag(sinumerikNode.NCVar) { Value = changes[sourceChange] };
+                var sinumerikNode = bindings[change.Guid];
+                PLCNckTag tag = new PLCNckTag(sinumerikNode.NCVar) { Value = change.Value };
 
                 // TODO: we can pass a list for perfomance reasons, the library does optimization
-                connection.WriteValue(tag);
-                bindings[sourceChange].Value = changes[sourceChange];
+                _connection.WriteValue(tag);
+                bindings[change.Guid].Value = change.Value;
             }
 
             return Task.CompletedTask;
         }
 
-        public Task PushParentChangesAsync(Dictionary<Guid, object> changes)
+        public override Task PushParentChangesAsync(HashSet<NodeChange> changes)
         {
-            Dictionary<Guid, Sinumerik840dNode> bindings = nodes.ToDictionary(x => x.ParentGuid, x => x);
+            Dictionary<Guid, Sinumerik840dNode> bindings = _nodes.ToDictionary(x => x.ParentGuid, x => x);
 
-            foreach (var sourceChange in changes.Keys)
+            foreach (var change in changes)
             {
-                var sinumerikNode = bindings[sourceChange];
-                PLCNckTag tag = new PLCNckTag(sinumerikNode.NCVar) { Value = changes[sourceChange] };
+                var sinumerikNode = bindings[change.Guid];
+                PLCNckTag tag = new PLCNckTag(sinumerikNode.NCVar) { Value = change.Value };
 
                 // TODO: we can pass a list for perfomance reasons, the library does optimization
-                connection.WriteValue(tag);
-                bindings[sourceChange].Value = changes[sourceChange];
+                _connection.WriteValue(tag);
+                bindings[change.Guid].Value = change.Value;
             }
 
             return Task.CompletedTask;
         }
 
-        public void AddNode(INode node) 
+        public override void AddNode(Node node)
         {
-            nodes.Add(node as Sinumerik840dNode);
+            _nodes.Add(node as Sinumerik840dNode);
         }
 
-        public List<INode> GetNodes()
+        public override List<Node> GetNodes()
         {
-            return nodes.ToList<INode>();
+            return _nodes.ToList<Node>();
         }
     }
 

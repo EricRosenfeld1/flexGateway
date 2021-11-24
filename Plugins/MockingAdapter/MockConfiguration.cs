@@ -1,11 +1,8 @@
-﻿using flexGateway.Interface;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using flexGateway.Plugin.Configuration;
 
 namespace MockingAdapter
 {
-    public class MockConfiguration : IDeviceConfiguration
+    public class MockConfiguration : IAdapterConfiguration
     {
         public int Seed { get; set; }
     }

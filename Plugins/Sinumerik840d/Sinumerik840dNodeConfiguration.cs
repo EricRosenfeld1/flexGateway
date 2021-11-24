@@ -1,7 +1,4 @@
-﻿using DotNetSiemensPLCToolBoxLibrary.Communication;
-using flexGateway.Interface;
-using Newtonsoft.Json;
-using System;
+﻿using flexGateway.Plugin.Configuration;
 
 namespace Sinumerik840d
 {

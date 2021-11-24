@@ -1,5 +1,6 @@
-using flexGateway.Common.Device;
-using flexGateway.Common.Node;
+using flexGateway.Common.Adapters;
+using flexGateway.Common.Nodes;
+using flexGateway.Server.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -7,8 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
-using flexGateway.Server.Hubs;
-using Radzen;
 
 namespace flexGateway.Server
 {
@@ -29,9 +28,9 @@ namespace flexGateway.Server
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            services.AddSingleton<IDeviceFactory, DeviceFactory>();
+            services.AddSingleton<IAdapterFactory, AdapterFactory>();
             services.AddSingleton<INodeFactory, NodeFactory>();
-            services.AddSingleton<IDeviceManager, DeviceManager>();
+            services.AddSingleton<IAdapterManager, AdapterManager>();
             services.AddSingleton<NodeSynchronizationService>();
 
             services.AddHostedService<NodeSynchronizationService>(provider => provider.GetService<NodeSynchronizationService>());
@@ -59,7 +58,7 @@ namespace flexGateway.Server
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-         
+
             app.UseHttpsRedirection();
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();

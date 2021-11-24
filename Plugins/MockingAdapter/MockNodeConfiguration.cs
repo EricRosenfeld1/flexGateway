@@ -1,7 +1,4 @@
-﻿using flexGateway.Interface;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using flexGateway.Plugin.Configuration;
 
 namespace MockingAdapter
 {

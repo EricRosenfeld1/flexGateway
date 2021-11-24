@@ -1,10 +1,10 @@
-﻿@page "/device/{deviceGuid}"
+﻿@page "/adapters/{adapterGuid}"
 @using flexGateway.Shared
 @inject HttpClient Http
 @inject DialogService DialogService
 @inject NotificationService NotificationService
 
-@if (Device == null)
+@if (adapter == null)
 {
     <p>Loading device info...</p>
 }
@@ -14,22 +14,22 @@ else
         <div class="row">
             <div class="col-md-6">
                 <div>Name:</div>
-                <b>@Device.Name</b>
+                <b>@adapter.Name</b>
             </div>
             <div class="col-md-6">
                 <div>Guid:</div>
-                <b>@Device.Guid</b>
+                <b>@adapter.Guid</b>
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-6">
                 <div>Type:</div>
-                <b>@Device.TypeFullName</b>
+                <b>@adapter.TypeFullName</b>
             </div>
             <div class="col-md-6">
                 <div>Source:</div>
-                <b>@Device.IsSource</b>
+                <b>@adapter.IsSource</b>
             </div>
         </div>
     </RadzenCard>
@@ -45,15 +45,15 @@ else
 
 
 @code {
-    [Parameter] public Guid DeviceGuid { get; set; }
-    public DeviceModel Device { get; set; }
+    [Parameter] public Guid adapterGuid { get; set; }
+    private AdapterModel adapter { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var res = await Http.GetAsync($"api/device/getDevice/{DeviceGuid}");
+        var res = await Http.GetAsync($"api/adapters/{adapterGuid}");
         if (res.IsSuccessStatusCode)
         {
-            Device = await res.Content.ReadFromJsonAsync<DeviceModel>();
+            adapter = await res.Content.ReadFromJsonAsync<AdapterModel>();
         }
         else
         {
@@ -62,7 +62,7 @@ else
                 Duration = 4000,
                 Severity = NotificationSeverity.Error,
                 Detail = "Error",
-                Summary = "Device not found"
+                Summary = "Adapter not found"
             });
         }
     }

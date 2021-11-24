@@ -1,26 +1,19 @@
-﻿using flexGateway.Interface;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using flexGateway.Plugin;
+using flexGateway.Plugin.Configuration;
 
 namespace MockingAdapter
 {
-    public class MockNode : INode
+    public class MockNode : Node
     {
-        public Guid Guid { get; set; }
-        public string NodeName { get; set; }
-        public Guid ParentGuid { get; set; }
-        public object Value { get; set; }
-        public NodeDataType NodeType { get; set; }
-        public INodeConfiguration Configuration { get; set; }
-
         public int Max { get; set; }
         public int Min { get; set; }
-        public MockNode(MockNodeConfiguration config)
+
+        public override void Configure(INodeConfiguration configuration)
         {
-            Configuration = config;
-            Max = config.Max;
-            Min = config.Min;
+            var c = configuration as MockNodeConfiguration;
+            Max = c.Max;
+            Min = c.Min;
+            base.Configure(configuration);
         }
     }
 }

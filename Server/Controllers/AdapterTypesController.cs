@@ -1,31 +1,30 @@
-﻿using flexGateway.Common.Device;
+﻿using flexGateway.Common.Adapters;
 using flexGateway.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace flexGateway.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DeviceTypesController : ControllerBase
+    public class AdapterTypesController : ControllerBase
     {
-        private IDeviceFactory _deviceFactory;
+        private IAdapterFactory _deviceFactory;
 
-        public DeviceTypesController(IDeviceFactory deviceFactory)
+        public AdapterTypesController(IAdapterFactory deviceFactory)
         {
             _deviceFactory = deviceFactory;
         }
 
+        // GET: api/adaptertypes
         [HttpGet]
-        public ActionResult<IEnumerable<DeviceTypeModel>> GetDeviceTypes()
+        public ActionResult<IEnumerable<AdapterTypeModel>> GetDeviceTypes()
         {
-            var types = new List<DeviceTypeModel>();
+            var types = new List<AdapterTypeModel>();
             foreach (var item in _deviceFactory.RegisteredTypes.Keys)
-                types.Add(new DeviceTypeModel()
+                types.Add(new AdapterTypeModel()
                 {
                     TypeFullName = item.FullName,
                     JsonConfiguration = JsonConvert.SerializeObject(Activator.CreateInstance(_deviceFactory.RegisteredTypes[item]),
