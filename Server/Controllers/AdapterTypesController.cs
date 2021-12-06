@@ -1,5 +1,6 @@
 ﻿using flexGateway.Common.Adapters;
 using flexGateway.Shared;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
@@ -20,6 +21,7 @@ namespace flexGateway.Server.Controllers
 
         // GET: api/adaptertypes
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<AdapterTypeModel>> GetDeviceTypes()
         {
             var types = new List<AdapterTypeModel>();
@@ -31,7 +33,7 @@ namespace flexGateway.Server.Controllers
                     Formatting.Indented)
                 });
 
-            return types.ToArray();
+            return Ok(types.ToArray());
         }
     }
 }

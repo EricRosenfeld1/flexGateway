@@ -12,9 +12,9 @@
     </div>
     <div class="row" style="margin-bottom:1rem;">
         <div class="col-md-12">
-            <RadzenDropDown Placeholder="Select Device Type" @bind-Value="selectedTypeModel" 
-                            Change="@(args => OnChange(args))" SelectedItem="selectedTypeModel" 
-                            TValue="AdapterTypeModel" Data="@types" TextProperty="TypeFullName"/>
+            <RadzenDropDown Style="width:500px" Placeholder="Select Device Type" @bind-Value="selectedTypeModel"
+                            Change="@(args => OnChange(args))" SelectedItem="selectedTypeModel"
+                            TValue="AdapterTypeModel" Data="@types" TextProperty="TypeFullName" />
         </div>
     </div>
 
@@ -38,19 +38,21 @@
         </div>
         <div class="row" style="margin-bottom:1rem">
             <div class="col-md-12">
-                <RadzenTextArea Style="width:500px;height:220px;resize:none" @bind-Value="configurationModel.JsonConfiguration"/>
+                <RadzenTextArea Style="width:500px;height:220px;resize:none" @bind-Value="configurationModel.JsonConfiguration" />
             </div>
         </div>
     }
 
+    <div class="row">
+        <div class="col-md-12">
+            <RadzenButton Text="Add" Disabled="AddDisabled" Click="@(() => OnAddClick())" />
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Secondary" Click="@(() => this.DialogService.Close(true))" />
+        </div>
+    </div>
+
 </RadzenCard>
 
-<div class="row" style="position:absolute; bottom:10px;">
-    <div class="col-md-12">
-        <RadzenButton Text="Add" Disabled="AddDisabled" Click="@(() => OnAddClick())"/>
-        <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Secondary" Click="@(() => this.DialogService.Close(true))" />
-    </div>
-</div>
+
 
 
 @code {

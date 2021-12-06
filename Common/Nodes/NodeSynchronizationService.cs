@@ -19,14 +19,20 @@ namespace flexGateway.Common.Nodes
 
         public bool IsRunning { get; private set; } = false;
 
-        public NodeSynchronizationService(ILogger<NodeSynchronizationService> logger, IAdapterManager deviceManager)
+        public NodeSynchronizationService(ILogger<NodeSynchronizationService> logger, IAdapterManager adapterManager)
         {
-            _adapterManager = deviceManager;
+            _adapterManager = adapterManager;
             _logger = logger;
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
+            if (_adapterManager.Adapters.Count == 0)
+            {
+                _logger.LogInformation("No registered adapters. Service not started.");
+                return Task.CompletedTask;
+            }
+
             IsRunning = true;
             _logger.LogInformation("Node synchronization service started.");
             return base.StartAsync(cancellationToken);
@@ -44,11 +50,25 @@ namespace flexGateway.Common.Nodes
             Stopwatch sw = new Stopwatch();
             try
             {
-                var source = _adapterManager.Adapters.Single(x => x.IsSource);
-                var publishers = _adapterManager.Adapters.Where(x => x.IsSource == false);
-
-                while (!stoppingToken.IsCancellationRequested)
+                 while (!stoppingToken.IsCancellationRequested)
                 {
+                    var source = _adapterManager.Adapters.SingleOrDefault(x => x.IsSource & x.IsConnected);
+                    if (source == null)
+                    {
+                        IsRunning = false;
+                        _logger.LogWarning("No vaild source found. Stopping service..");
+                        return;
+                    }
+
+                    var publishers = _adapterManager.Adapters.Where(x => x.IsSource == false & x.IsConnected);
+                    if (publishers.Count() == 0)
+                    {
+                        IsRunning = false;
+                        _logger.LogWarning("No publishers found. Stopping service..");
+                        return;
+                    }
+
+
                     // 1. get changed nodes from source
                     var sourceChanges = new HashSet<NodeChange>(new NodeChangeEqualityComparer());
                     try
@@ -139,11 +159,13 @@ namespace flexGateway.Common.Nodes
                     if (waitMs > 0)
                         await Task.Delay(waitMs);
                 }
+
+                IsRunning = false;
             }
             catch (Exception ex)
             {
                 this.IsRunning = false;
-                Debug.WriteLine(ex.Message);
+                _logger.LogError(ex.Message);
             }
         });
     }

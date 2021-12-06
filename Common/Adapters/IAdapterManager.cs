@@ -8,8 +8,8 @@ namespace flexGateway.Common.Adapters
     public interface IAdapterManager
     {
         public List<Adapter> Adapters { get; }
-        public bool AddAdapter(Adapter adapter);
-        public Guid AddAdapter(AdapterConfigurationModel adapter);
+        public Adapter AddAdapter(Adapter adapter);
+        public Adapter AddAdapter(AdapterConfigurationModel adapter);
         public bool RemoveAdapter(Guid adapterGuid);
     }
 }

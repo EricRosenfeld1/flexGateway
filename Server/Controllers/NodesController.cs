@@ -40,16 +40,16 @@ namespace flexGateway.Server.Controllers
 
                 var adapter = _adapterManager.Adapters.Where(x => x.Guid == adapterGuid).FirstOrDefault();
 
-                if (adapter != null)
-                {
-                    var node = _nodeFactory.Create(configModel.TypeFullName, configModel.JsonConfiguration);
-                    node.Name = configModel.Name;
-                    node.Guid = Guid.NewGuid();
-                    node.DataType = NodeDataType.Int;
-                    node.ParentGuid = Guid.Empty;
+                if (adapter == null)
+                    return BadRequest($"Adapter with guid: '{adapterGuid}' not found.");
+                
+                var node = _nodeFactory.Create(configModel.TypeFullName, configModel.JsonConfiguration);
+                node.Name = configModel.Name;
+                node.Guid = Guid.NewGuid();
+                node.DataType = NodeDataType.Int;
+                node.ParentGuid = configModel.ParentGuid;
 
-                    adapter.AddNode(node);
-                }
+                adapter.AddNode(node);                
             }
             catch (Exception ex)
             {

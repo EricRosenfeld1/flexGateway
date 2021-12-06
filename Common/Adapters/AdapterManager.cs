@@ -11,6 +11,7 @@ namespace flexGateway.Common.Adapters
     {
         private ILogger<AdapterManager> _logger;
         private IAdapterFactory _adapterFactory;
+        private LiteDbContext _liteDb;
 
         private List<Adapter> _adapters = new List<Adapter>();
         private object _adapterLock = new object();
@@ -29,26 +30,28 @@ namespace flexGateway.Common.Adapters
             }
         }
 
-        public AdapterManager(ILogger<AdapterManager> logger, IAdapterFactory adapterFactory)
+        public AdapterManager(ILogger<AdapterManager> logger, IAdapterFactory adapterFactory, LiteDbContext liteDb)
         {
             _logger = logger;
             _adapterFactory = adapterFactory;
+            _liteDb = liteDb;
         }
 
-        public bool AddAdapter(Adapter adapter)
+        public Adapter AddAdapter(Adapter adapter)
         {
             if (Adapters.Exists(x => x.Name == adapter.Name))
-                return false;
+                return null;
 
             if (adapter.IsSource)
                 if (Adapters.Any(x => x.IsSource))
-                    return false;
+                    return null;
 
             Adapters.Add(adapter);
-            return true;
+
+            return adapter;
         }
 
-        public Guid AddAdapter(AdapterConfigurationModel model)
+        public Adapter AddAdapter(AdapterConfigurationModel model)
         {
             try
             {
@@ -57,15 +60,12 @@ namespace flexGateway.Common.Adapters
                 adapter.Name = model.Name;
                 adapter.IsSource = model.IsSource;
 
-                if (AddAdapter(adapter))
-                    return adapter.Guid;
-                else
-                    return Guid.Empty;
+                return AddAdapter(adapter);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return Guid.Empty;
+                return null;
             }
         }
 
