@@ -12,6 +12,6 @@ namespace flexGateway.Shared
         public List<NodeModel> Nodes { get; set; }
         public string LastException { get; set; }
         public bool IsConnected { get; set; }
-
+        public string JsonConfiguration { get; set; }
     }
 }

@@ -14,8 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common\flexGateway.Common.csproj" />
     <ProjectReference Include="..\Client\flexGateway.Client.csproj" />
+    <ProjectReference Include="..\Common\flexGateway.Common.csproj" />
+    <!--<ProjectReference Include="..\Client\flexGateway.Client.csproj" />-->
     <ProjectReference Include="..\Shared\flexGateway.Shared.csproj" />
   </ItemGroup>
 </Project>

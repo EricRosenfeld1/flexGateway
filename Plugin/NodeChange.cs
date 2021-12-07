@@ -3,6 +3,12 @@ using System.Collections.Generic;
 
 namespace flexGateway.Plugin
 {
+    /// <summary>
+    /// A class representing a changed value of a <see cref="Node"/>
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="Guid">Guid</see> can be the parent guid or the node guid
+    /// </remarks>
     public class NodeChange
     {
         public NodeChange(Guid guid, object value, NodeDataType type)

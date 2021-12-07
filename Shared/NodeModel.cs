@@ -8,8 +8,10 @@ namespace flexGateway.Shared
         public Guid Guid { get; set; }
         public Guid ParentGuid { get; set; }
         public string Name { get; set; }
+        public string TypeFullName { get; set; }
         public object Value { get; set; }
-        public NodeDataType NodeType { get; set; }
+        public NodeDataType DataType { get; set; }
+        public string JsonConfiguration { get; set; }
     }
 
 }

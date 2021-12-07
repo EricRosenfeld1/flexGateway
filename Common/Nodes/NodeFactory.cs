@@ -1,5 +1,6 @@
 ﻿using flexGateway.Plugin;
 using flexGateway.Plugin.Configuration;
+using flexGateway.Shared;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,17 @@ namespace flexGateway.Common.Nodes
             }
             else
                 return null;
+        }
+
+        public Node Create(NodeModel nodeModel)
+        {
+            var node = Create(nodeModel.TypeFullName, nodeModel.JsonConfiguration);
+            node.Guid = nodeModel.Guid;
+            node.Name = nodeModel.Name;
+            node.ParentGuid = nodeModel.ParentGuid;
+            node.DataType = nodeModel.DataType;
+            
+            return node;
         }
     }
 }

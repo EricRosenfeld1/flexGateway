@@ -21,11 +21,13 @@ namespace MockingAdapter
 
         public override Task ConnectAsync()
         {
+            IsConnected = true;
             return Task.CompletedTask;
         }
 
         public override Task DisconnectAsync()
         {
+            IsConnected = false;
             return Task.CompletedTask;
         }
 

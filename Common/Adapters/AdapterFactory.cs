@@ -1,5 +1,6 @@
 ﻿using flexGateway.Plugin;
 using flexGateway.Plugin.Configuration;
+using flexGateway.Shared;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,17 @@ namespace flexGateway.Common.Adapters
             }
             else
                 throw new Exception("Type configuration not found");
+        }
+
+        public Adapter Create(AdapterModel adapterModel)
+        {
+            var adapter = Create(adapterModel.TypeFullName, adapterModel.JsonConfiguration);
+            adapter.Guid = adapterModel.Guid;
+            adapter.Name = adapterModel.Name;
+            adapter.IsSource = adapterModel.IsSource;
+            adapter.LastException = adapterModel.LastException == string.Empty ? null : new Exception();
+
+            return adapter;
         }
     }
 }

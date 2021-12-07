@@ -79,7 +79,7 @@ namespace flexGateway.Common.Nodes
                     catch (Exception ex)
                     {
                         source.LastException = ex.InnerException;
-                        source.IsConnected = false;
+                        await source.DisconnectAsync();
                         throw new Exception($"Error while getting dirty nodes from source: '{source.Name}'");
                     }
 
@@ -105,7 +105,7 @@ namespace flexGateway.Common.Nodes
                             if (task.Value.IsFaulted)
                             {
                                 task.Key.LastException = task.Value.Exception.InnerException;
-                                task.Key.IsConnected = false;
+                                await task.Key.DisconnectAsync();
                             }
                     }
 
@@ -148,7 +148,7 @@ namespace flexGateway.Common.Nodes
                             if (task.Value.IsFaulted)
                             {
                                 task.Key.LastException = task.Value.Exception.InnerException;
-                                task.Key.IsConnected = false;
+                                await task.Key.DisconnectAsync();
                             }
                     }
 

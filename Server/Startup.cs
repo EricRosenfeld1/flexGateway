@@ -1,6 +1,7 @@
 using flexGateway.Common;
 using flexGateway.Common.Adapters;
 using flexGateway.Common.Nodes;
+using flexGateway.Common.Repository;
 using flexGateway.Server.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,14 +31,20 @@ namespace flexGateway.Server
             services.AddControllersWithViews();
             services.AddRazorPages();
 
+            // Database
+            services.AddLiteDb(@"database.db");
+            services.AddSingleton<IAdapterRepository, AdapterRepository>();
+
+            // Factories
             services.AddSingleton<IAdapterFactory, AdapterFactory>();
             services.AddSingleton<INodeFactory, NodeFactory>();
+
+            // Managers
             services.AddSingleton<IAdapterManager, AdapterManager>();
+
+            // Synchronization service
             services.AddSingleton<NodeSynchronizationService>();
-
-            services.AddHostedService<NodeSynchronizationService>(provider => provider.GetService<NodeSynchronizationService>());
-
-            services.AddLiteDb(@"database.db");
+            services.AddHostedService(provider => provider.GetService<NodeSynchronizationService>());
 
             services.AddSwaggerGen(options =>
             {
@@ -48,7 +55,7 @@ namespace flexGateway.Server
                 });
             });
 
-                services.AddResponseCompression(opts =>
+            services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { "application/octet-stream" });
@@ -79,8 +86,8 @@ namespace flexGateway.Server
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 
+            
             app.UseRouting();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();

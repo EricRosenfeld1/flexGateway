@@ -1,6 +1,9 @@
-﻿using flexGateway.Plugin;
+﻿using flexGateway.Common.Nodes;
+using flexGateway.Common.Repository;
+using flexGateway.Plugin;
 using flexGateway.Shared;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +14,15 @@ namespace flexGateway.Common.Adapters
     {
         private ILogger<AdapterManager> _logger;
         private IAdapterFactory _adapterFactory;
-        private LiteDbContext _liteDb;
+        private INodeFactory _nodeFactory;
+        private IAdapterRepository _adapterRepo;
 
         private List<Adapter> _adapters = new List<Adapter>();
         private object _adapterLock = new object();
 
+        /// <summary>
+        /// List of <see cref="Adapter"/>
+        /// </summary>
         public List<Adapter> Adapters
         {
             set
@@ -30,11 +37,14 @@ namespace flexGateway.Common.Adapters
             }
         }
 
-        public AdapterManager(ILogger<AdapterManager> logger, IAdapterFactory adapterFactory, LiteDbContext liteDb)
+        public AdapterManager(ILogger<AdapterManager> logger, IAdapterFactory adapterFactory, IAdapterRepository adapterRepository, INodeFactory nodeFactory)
         {
             _logger = logger;
             _adapterFactory = adapterFactory;
-            _liteDb = liteDb;
+            _adapterRepo = adapterRepository;
+            _nodeFactory = nodeFactory;
+
+            LoadAdapters();
         }
 
         public Adapter AddAdapter(Adapter adapter)
@@ -47,6 +57,15 @@ namespace flexGateway.Common.Adapters
                     return null;
 
             Adapters.Add(adapter);
+            var model = new AdapterModel();
+            model.Guid = adapter.Guid;
+            model.IsSource = adapter.IsSource;
+            model.JsonConfiguration = JsonConvert.SerializeObject(adapter.Configuration);
+            model.Name = adapter.Name;
+            model.TypeFullName = adapter.GetType().FullName;
+            model.LastException = adapter.LastException?.Message;
+            _adapterRepo.InsertAdapter(model);
+            _adapterRepo.Save();
 
             return adapter;
         }
@@ -77,6 +96,31 @@ namespace flexGateway.Common.Adapters
                 return true;
             else
                 return false;
+        }
+
+        /// <summary>
+        /// Load all <see cref="AdapterModel"/> from database and add them to <see cref="Adapters"/>
+        /// </summary>
+        private void LoadAdapters()
+        {
+            var adapterModels = _adapterRepo.GetAdapters();
+            var adapters = new List<Adapter>();
+            foreach(var adapterModel in adapterModels)
+            {
+                try 
+                {
+                    var adapter = _adapterFactory.Create(adapterModel);
+
+                    if (adapterModel.Nodes != null)
+                        foreach (var nodeModel in adapterModel.Nodes)
+                            adapter.AddNode(_nodeFactory.Create(nodeModel));   
+
+                    adapters.Add(adapter); 
+                }
+                catch (Exception ex) { _logger.LogError(ex.Message); }
+
+                Adapters = adapters;
+            }
         }
     }
 }

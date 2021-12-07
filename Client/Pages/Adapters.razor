@@ -113,11 +113,18 @@
         if (device.IsConnected)
         {
             var resp = await DialogService.Confirm("Stop service?", device.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No"});
-
+            Console.WriteLine("stop");
+            await Http.GetAsync($"api/adapters/{device.Guid}/stop");
+            Console.WriteLine("stop");
+            await LoadAdapters();
         }
         else
         {
             var resp = await DialogService.Confirm("Start service?", device.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+            Console.WriteLine("start");
+            await Http.GetAsync($"api/adapters/{device.Guid}/start");
+            Console.WriteLine("start");
+            await LoadAdapters();
         }
     }
 

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace flexGateway.Server.Controllers
 {
@@ -97,13 +98,45 @@ namespace flexGateway.Server.Controllers
                 {
                     Name = node.Name,
                     Guid = node.Guid,
-                    NodeType = node.DataType,
+                    DataType = node.DataType,
                     Value = node.Value,
                     ParentGuid = node.ParentGuid
                 });
             }
 
             return Ok(model);
+        }
+
+        [HttpGet("{guid}/start")]
+        public async Task<ActionResult> StartAdapterAsync(Guid guid)
+        {
+            var adapter = _adapterManager.Adapters.FirstOrDefault(x => x.Guid == guid);
+            if (adapter == null)
+                return BadRequest($"No adapter with guid: {guid} found");
+   
+            if (!adapter.IsConnected)
+            {
+                await adapter.ConnectAsync();
+                return Ok();
+            }
+            else
+                return BadRequest($"Could not start adapter with guid: '{guid}'");
+        }
+
+        [HttpGet("{guid}/stop")]
+        public async Task<ActionResult> StopAdapterAsync(Guid guid)
+        {
+            var adapter = _adapterManager.Adapters.FirstOrDefault(x => x.Guid == guid);
+            if (adapter == null)
+                return BadRequest($"No adapter with guid: {guid} found");
+
+            if (adapter.IsConnected)
+            {
+                await adapter.DisconnectAsync();
+                return Ok();
+            }
+            else
+                return BadRequest($"Could not start adapter with guid: '{guid}'");
         }
 
         // DELETE: api/adapters/{guid}
