@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace flexGateway.Server
 {
-    public static class HostExtension
+    public static class Extension
     {
         public static IHost LoadPlugins(this IHost host)
         {

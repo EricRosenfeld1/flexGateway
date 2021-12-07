@@ -1,6 +1,8 @@
 ﻿using flexGateway.Common.Adapters;
 using flexGateway.Common.Nodes;
+using flexGateway.Plugin;
 using flexGateway.Shared;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -23,17 +25,20 @@ namespace flexGateway.Server.Controllers
 
         // POST: api/adapters
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public IActionResult PostAdapter(AdapterConfigurationModel adapterModel)
         {
-            var guid = AddAdapter(adapterModel);
-            if (guid != Guid.Empty)
-                return Ok(guid);
+            var adapter = AddAdapter(adapterModel);
+            if (adapter != null)
+                return CreatedAtAction(nameof(GetAdapter), new { guid = adapter.Guid}, adapter);
             else
-                return UnprocessableEntity();
+                return NoContent();
         }
 
         // GET: api/adapters
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<AdapterModel>> GetAdapters()
         {
             var r = new List<AdapterModel>();
@@ -62,11 +67,13 @@ namespace flexGateway.Server.Controllers
                 });
             }
 
-            return r.ToArray();
+            return Ok(r.ToArray());
         }
 
         // GET: api/adapters/{guid}
         [HttpGet("{guid}")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<AdapterModel> GetAdapter(Guid guid)
         {
             var adapter = _adapterManager.Adapters.Where(x => x.Guid == guid).FirstOrDefault();
@@ -96,18 +103,19 @@ namespace flexGateway.Server.Controllers
                 });
             }
 
-            return model;
+            return Ok(model);
         }
 
         // DELETE: api/adapters/{guid}
         [HttpDelete("{guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult DeleteAdatper(Guid guid)
         {
             var success = _adapterManager.RemoveAdapter(guid);
             return Ok(success);
         }
 
-        private Guid AddAdapter(AdapterConfigurationModel adpaterModel)
+        private Adapter AddAdapter(AdapterConfigurationModel adpaterModel)
         {
             try
             {
@@ -118,7 +126,7 @@ namespace flexGateway.Server.Controllers
             }
             catch (Exception)
             {
-                return Guid.Empty;
+                return null;
             }
             finally
             {

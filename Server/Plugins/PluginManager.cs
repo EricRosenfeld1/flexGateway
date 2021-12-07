@@ -22,6 +22,13 @@ namespace flexGateway.Common.Plugins
         public void LoadPlugins(ILogger<PluginManager> logger)
         {
             string pluginPath = Path.Combine(AppContext.BaseDirectory, "plugins");
+
+            if (!Directory.Exists(pluginPath))
+            {
+                logger.LogError("Plugin path not found!");
+                return;
+            }
+
             foreach (var dir in Directory.GetDirectories(pluginPath))
             {
                 try

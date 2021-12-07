@@ -1,3 +1,4 @@
+using flexGateway.Common;
 using flexGateway.Common.Adapters;
 using flexGateway.Common.Nodes;
 using flexGateway.Server.Hubs;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using System.Linq;
 
 namespace flexGateway.Server
@@ -35,11 +37,23 @@ namespace flexGateway.Server
 
             services.AddHostedService<NodeSynchronizationService>(provider => provider.GetService<NodeSynchronizationService>());
 
-            services.AddResponseCompression(opts =>
+            services.AddLiteDb(@"database.db");
+
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "flexGateway API"
+                });
+            });
+
+                services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { "application/octet-stream" });
             });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,6 +65,8 @@ namespace flexGateway.Server
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
             else
             {
