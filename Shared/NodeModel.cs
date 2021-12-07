@@ -10,6 +10,7 @@ namespace flexGateway.Shared
         public string Name { get; set; }
         public object Value { get; set; }
         public NodeDataType NodeType { get; set; }
+        public string ValueAsString { get { return Value.ToString(); } }
     }
 
 }

@@ -4,7 +4,7 @@
 @inject DialogService DialogService
 @inject NotificationService NotificationService
 
-
+@* Add/Remove button *@
 <div class="row">
     <div class="col-xl-6">
         <div class="row">
@@ -17,8 +17,53 @@
     </div>
 </div>
 
+@* Adapter Data Grid *@
 <RadzenDataGrid @ref="@grid" Data="@adapters" TItem="@AdapterModel" @bind-Value="@selectedAdapters" 
-                SelectionMode="DataGridSelectionMode.Single">
+                SelectionMode="DataGridSelectionMode.Single" ExpandMode="DataGridExpandMode.Single">
+
+    @* Expand Panel *@
+    <Template Context="data">
+        <RadzenTabs>
+            <Tabs>
+                @* Adapter Details Tab *@
+                <RadzenTabsItem Text="Details">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div>Name:</div>
+                            <b>@data.Name</b>
+                        </div>
+                        <div class="col-md-6">
+                            <div>Guid:</div>
+                            <b>@data.Guid</b>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div>Type:</div>
+                            <b>@data.TypeFullName</b>
+                        </div>
+                        <div class="col-md-6">
+                            <div>Source:</div>
+                            <b>@data.IsSource</b>
+                        </div>
+                    </div>
+                </RadzenTabsItem>
+
+                @* Nodes Tab *@
+                <RadzenTabsItem Text="Nodes">
+                    <RadzenDataGrid Data="data.Nodes" TItem="NodeModel">
+                        <Columns>
+                            <RadzenDataGridColumn Title="Name" TItem="NodeModel" Property="Name"/>
+                            <RadzenDataGridColumn Title="Value" TItem="NodeModel" Property="ValueAsString" />
+                        </Columns>
+                    </RadzenDataGrid>
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+    </Template>
+
+    @* Columns *@
     <Columns>
         <RadzenDataGridColumn Width="70px" Title="Name" TItem="@AdapterModel" Property="Name" />
         <RadzenDataGridColumn Width="100px" Title="Guid" TItem="@AdapterModel" Property="Guid"/>
@@ -108,16 +153,16 @@
         await grid.Reload();
     }
 
-    private async Task StartStopService(AdapterModel device)
+    private async Task StartStopService(AdapterModel adapter)
     {
-        if (device.IsConnected)
+        if (adapter.IsConnected)
         {
-            var resp = await DialogService.Confirm("Stop service?", device.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No"});
+            var resp = await DialogService.Confirm("Do you want to stop the adapter?", adapter.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No"});
 
         }
         else
         {
-            var resp = await DialogService.Confirm("Start service?", device.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+            var resp = await DialogService.Confirm("Do you want to start the adapter?", adapter.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
         }
     }
 
