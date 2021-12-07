@@ -162,9 +162,9 @@
         }
         else
         {
-            var resp = await DialogService.Confirm("Start service?", device.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+            var resp = await DialogService.Confirm("Start service?", adapter.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
             Console.WriteLine("start");
-            await Http.GetAsync($"api/adapters/{device.Guid}/start");
+            await Http.GetAsync($"api/adapters/{adapter.Guid}/start");
             Console.WriteLine("start");
             await LoadAdapters();
         }
