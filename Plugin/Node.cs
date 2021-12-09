@@ -24,19 +24,7 @@ namespace flexGateway.Plugin
 
         public Guid ParentGuid { get; set; }
 
-        public object Value
-        {
-            get
-            {
-                lock (_lock)
-                    return _value;
-            }
-            set
-            {
-                lock (_lock)
-                    _value = value;
-            }
-        }
+        public object Value { get; set; }
 
         public bool IsDirty { get; private set; }
 
@@ -44,7 +32,9 @@ namespace flexGateway.Plugin
         {
             if(newValue != _value)
             {
-                _value = newValue;
+                lock (_lock)
+                    _value = newValue;
+                    
                 IsDirty = true;
             }
         }

@@ -54,8 +54,6 @@ namespace flexGateway.Plugin
             Configuration = configuration;
         }
 
-        public abstract void AddNode(Node node);
-
         public abstract Task ConnectAsync();
 
         public abstract Task DisconnectAsync();
