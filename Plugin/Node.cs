@@ -20,12 +20,9 @@ namespace flexGateway.Plugin
         /// <summary>
         /// Gets or sets the  of the guid of the <see cref="Node"/>
         /// </summary>
-        /// 
         public Guid Guid { get; set; }
 
         public Guid ParentGuid { get; set; }
-
-        public Guid Binding { get; set; }
 
         public object Value
         {

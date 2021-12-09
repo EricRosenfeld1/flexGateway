@@ -26,6 +26,11 @@ namespace flexGateway.Common.Repository
             _liteDb.Context.GetCollection<AdapterModel>("adapters").Insert(adapterModel);
         }
 
+        public void DeleteAdapter(Guid guid)
+        {
+            _liteDb.Context.GetCollection<AdapterModel>("adapters").Delete(guid);
+        }
+
         public void Save()
         {
             _liteDb.Context.Commit();

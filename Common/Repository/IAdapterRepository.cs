@@ -13,5 +13,6 @@ namespace flexGateway.Common.Repository
         List<AdapterModel> GetAdapters();
         void InsertAdapter(AdapterModel adapterModel);
         void Save();
+        void DeleteAdapter(Guid guid);
     }
 }

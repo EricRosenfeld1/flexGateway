@@ -60,28 +60,6 @@ namespace flexGateway.Plugin
 
         public abstract Task DisconnectAsync();
 
-        /// <summary>
-        /// Gets all <see cref="Node">Nodes</see> where the <see cref="Node.Value">Value</see> has changed since the last poll
-        /// </summary>
-        /// <returns></returns>
-        public abstract Task<List<Node>> GetDirtyNodesAsync();
-
-        public abstract List<Node> GetNodes();
-
-        /// <summary>
-        /// Updates the values of all <see cref="Node">Nodes</see>. Uses the <see cref="Node.Guid"/> to bind to the adapter nodes
-        /// </summary>
-        /// <param name="changes">Nodes where the value has changed</param>
-        /// <returns></returns>
-        public abstract Task PushChangesAsync(HashSet<NodeChange> changes);
-
-        /// <summary>
-        /// Updates the values of all <see cref="Node">Nodes</see> where the <see cref="Node">ParentNode</see> has changed. Uses the <see cref="Node.ParentGuid"/> to bind to the adpater nodes
-        /// </summary>
-        /// <param name="parentChanges"></param>
-        /// <returns></returns>
-        public abstract Task PushParentChangesAsync(HashSet<NodeChange> parentChanges);
-
         public abstract Task ReadNodeAsync(List<Node> nodes);
 
         public abstract Task WriteNodesAsync(List<Node> nodes);

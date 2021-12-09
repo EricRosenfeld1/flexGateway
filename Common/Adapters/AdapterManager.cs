@@ -57,6 +57,7 @@ namespace flexGateway.Common.Adapters
                     return null;
 
             Adapters.Add(adapter);
+
             var model = new AdapterModel();
             model.Guid = adapter.Guid;
             model.IsSource = adapter.IsSource;
@@ -64,6 +65,7 @@ namespace flexGateway.Common.Adapters
             model.Name = adapter.Name;
             model.TypeFullName = adapter.GetType().FullName;
             model.LastException = adapter.LastException?.Message;
+
             _adapterRepo.InsertAdapter(model);
             _adapterRepo.Save();
 
@@ -91,6 +93,7 @@ namespace flexGateway.Common.Adapters
         public bool RemoveAdapter(Guid adapterGuid)
         {
             var count = Adapters.RemoveAll(x => x.Guid == adapterGuid);
+            _adapterRepo.DeleteAdapter(adapterGuid);
 
             if (count > 0)
                 return true;

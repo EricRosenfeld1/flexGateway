@@ -71,7 +71,7 @@
             <Template Context="data">
                 @if (data.IsConnected)
                 {
-                    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Connected" 
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Text="Disconnect" 
                                   Click="@(args => StartStopService(data))"/>
                 }
                 else
@@ -82,7 +82,7 @@
                     }
                     else
                     {
-                         <RadzenButton ButtonStyle="ButtonStyle.Warning" Text="Not Connected" Click="@(args => StartStopService(data))" />
+                         <RadzenButton ButtonStyle="ButtonStyle.Warning" Text="Connect" Click="@(args => StartStopService(data))" />
                     }
                 }
             </Template>
@@ -126,18 +126,11 @@
 
     private async Task OnAddClick()
     {
-        await DialogService.OpenAsync<AddAdapterCard>("Add Adapter",
+        await DialogService.OpenAsync<AddAdapterCard>("Add a adapter...",
             new Dictionary<string, object>(),
             new DialogOptions() { Width = "600px", Height = "600px" });
 
         await LoadAdapters();
-    }
-
-    private async Task OpenCard(Guid guid)
-    {
-        await DialogService.OpenAsync<AdapterInfoCard>("Adapter Info",
-                new Dictionary<string, object>() { { "adapterGuid", guid } },
-                new DialogOptions() { Width = "700px", Height = "530px" });
     }
 
     public async Task AddNode(Guid guid)
@@ -158,14 +151,17 @@
         if (adapter.IsConnected)
         {
             var resp = await DialogService.Confirm("Do you want to stop the adapter?", adapter.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No"});
+            if(resp == true)
+                await Http.GetAsync($"api/adapters/{adapter.Guid}/stop");
 
+            await LoadAdapters();
         }
         else
         {
-            var resp = await DialogService.Confirm("Start service?", adapter.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
-            Console.WriteLine("start");
-            await Http.GetAsync($"api/adapters/{adapter.Guid}/start");
-            Console.WriteLine("start");
+            var resp = await DialogService.Confirm("Do you want to start the adapter?", adapter.Name, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+            if(resp == true)
+                await Http.GetAsync($"api/adapters/{adapter.Guid}/start");
+
             await LoadAdapters();
         }
     }
