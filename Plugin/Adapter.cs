@@ -81,5 +81,9 @@ namespace flexGateway.Plugin
         /// <param name="parentChanges"></param>
         /// <returns></returns>
         public abstract Task PushParentChangesAsync(HashSet<NodeChange> parentChanges);
+
+        public abstract Task ReadNodeAsync(List<Node> nodes);
+
+        public abstract Task WriteNodesAsync(List<Node> nodes);
     }
 }

@@ -50,6 +50,91 @@ namespace flexGateway.Common.Nodes
             Stopwatch sw = new Stopwatch();
             try
             {
+                var source = _adapterManager.Adapters.SingleOrDefault(x => x.IsSource & x.IsConnected);
+                if (source == null)
+                {
+                    IsRunning = false;
+                    _logger.LogWarning("No vaild source found. Stopping service..");
+                    return;
+                }
+
+                var publishers = _adapterManager.Adapters.Where(x => x.IsSource == false & x.IsConnected);
+                if (publishers.Count() == 0)
+                {
+                    IsRunning = false;
+                    _logger.LogWarning("No publishers found. Stopping service..");
+                    return;
+                }
+
+                // ----------------------------------
+
+               List<Node> sourceNodes = new List<Node>();
+               Dictionary<Guid, List<Node>> publisherNodes = new Dictionary<Guid, List<Node>>();
+
+                List<Node> publisherNodesB = new List<Node>();
+
+                // update source nodes
+                await source.ReadNodeAsync(sourceNodes);                              
+
+                // update publisher nodes
+                foreach (var publisher in publishers)
+                    await publisher.ReadNodeAsync(publisherNodes[publisher.Guid]);
+
+
+                // <ParentGuid, PublisherNode>
+                Dictionary<Guid, List<Node>> bindings = sourceNodes.ToDictionary(x => x.Guid, y => new List<Node>());
+                foreach(var node in publisherNodesB)                
+                    bindings[node.Binding].Add(node);
+                
+
+
+                foreach(var sourceNode in sourceNodes)
+                if (sourceNode.IsDirty)
+                        foreach (var node in bindings[source.Guid])
+                            node.UpdateValue(sourceNode.Value);
+                    else
+                        foreach (var node in bindings[sourceNode.Guid])
+                        if (node.IsDirty)
+                            {
+                                sourceNode.UpdateValue(node.Value);
+                                foreach (var node2 in bindings[sourceNode.Guid])
+                                    if(node2 != node)
+                                        node2.UpdateValue(node.Value);
+                            } 
+
+
+
+
+
+
+
+                Dictionary<Guid, Node> publisherGuids = new Dictionary<Guid, Node>();
+                // update publishers from source
+                foreach (var sourceNode in sourceNodes)
+                    foreach (var nodeList in publisherNodes.Values)
+                        foreach (var node in nodeList)
+                        {
+                            if (sourceNode.IsDirty)
+                                if (node.Binding == sourceNode.Guid)
+                                {
+                                    node.UpdateValue(sourceNode.Value);
+                                    sourceNode.ResetDirtyFlag();
+                                }
+                            else
+                                if (node.IsDirty)
+                                {
+                                    if(node.Binding == sourceNode.Guid)
+                                    {
+                                        sourceNode.UpdateValue(node.Value);
+                                    }
+                                }
+                        }
+
+
+
+
+
+
                  while (!stoppingToken.IsCancellationRequested)
                 {
                     var source = _adapterManager.Adapters.SingleOrDefault(x => x.IsSource & x.IsConnected);

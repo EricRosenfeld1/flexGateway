@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using flexGateway.Plugin.Configuration;
 
 namespace flexGateway.Plugin
@@ -24,6 +25,8 @@ namespace flexGateway.Plugin
 
         public Guid ParentGuid { get; set; }
 
+        public Guid Binding { get; set; }
+
         public object Value
         {
             get
@@ -36,6 +39,22 @@ namespace flexGateway.Plugin
                 lock (_lock)
                     _value = value;
             }
+        }
+
+        public bool IsDirty { get; private set; }
+
+        public void UpdateValue(object newValue)
+        {
+            if(newValue != _value)
+            {
+                _value = newValue;
+                IsDirty = true;
+            }
+        }
+
+        public void ResetDirtyFlag()
+        {
+            IsDirty = false;
         }
 
         public NodeDataType DataType { get; set; }

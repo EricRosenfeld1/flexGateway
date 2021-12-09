@@ -60,7 +60,7 @@ namespace flexGateway.Server.Controllers
                 if (!_nodeSynchroniztaionService.IsRunning)
                     _nodeSynchroniztaionService.StartAsync(new System.Threading.CancellationToken());
             }
-            return Ok();
+            return CreatedAtAction();
         }
 
     }
